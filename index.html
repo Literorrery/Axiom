@@ -1,0 +1,83 @@
+<div class="jacketClickers">
+</div>
+<div class="jacketPerms">
+</div>
+<div class="footer">
+  <p class="saveLink">Save</p>
+  <p class="loadLink">Load</p>
+  <p class="resetLink">Reset</p>
+</div>
+
+<script>
+const jacketClickers = document.querySelector('.jacketClickers');
+const jacketPerms = document.querySelector('.jacketPerms');
+const saveLink = document.querySelector('.saveLink');
+const loadLink = document.querySelector('.loadLink');
+const resetLink = document.querySelector('.resetLink');
+
+var player;
+
+function newPlayer() {
+	
+	player = {
+		jacket: "red",
+		red: {
+			redNumber: 0,
+			redSuccessors: {
+				redSuccessorCount: 0,
+				redSuccessorBase: 10,
+				redSuccessorFactor: 1.1,
+			}
+		}
+	}
+}
+
+function loadPlayer() {
+	if (localStorage.getItem("axiomPlayer")) {
+		player = JSON.parse(localStorage.getItem("axiomPlayer"));
+		console.log("Loading: %o", player);
+	} else {
+		newPlayer();
+		console.log("Creating new player.");
+	}
+}
+
+loadLink.addEventListener('click', loadPlayer);
+loadPlayer();
+
+function redClickDisplay() {
+	let html =
+		"<div class=\"jacketSelector\">"
+		+ "<h1 class=\"redNumber\">"
+		+ player.red.redNumber
+		+ "</h1>"
+		+ "</div>";
+	jacketClickers.innerHTML = html;
+}
+
+function redClickNumber() {
+	player.red.redNumber = player.red.redNumber + 1;
+	redClickDisplay();
+	console.log("Red: Increment to " + player.red.redNumber);
+}
+
+function savePlayer() {
+	localStorage.setItem("axiomPlayer", JSON.stringify(player));
+	console.log("Saving.");
+}
+
+saveLink.addEventListener('click', savePlayer);
+
+function resetPlayer() {
+	localStorage.removeItem("axiomPlayer");
+	newPlayer();
+	console.log("Reseting.");
+}
+
+resetLink.addEventListener('click', resetPlayer);
+
+jacketClickers.addEventListener('click', redClickNumber);
+
+setInterval(redClickDisplay, 1000);
+
+</script>
