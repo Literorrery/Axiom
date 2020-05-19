@@ -1,2 +1,3 @@
 # Axiom
-A multistage incremental game written
+A multistage incremental game.
+
