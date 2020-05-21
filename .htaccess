@@ -1,0 +1,4 @@
+Authtype Basic
+AuthName "Axiom Dev Environment"
+AuthUserFile /home/orrery/projects/axiom/dev-htpass.txt
+Require valid-user
