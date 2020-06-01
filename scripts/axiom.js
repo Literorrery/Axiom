@@ -61,15 +61,12 @@
  * -- Zero
  */
 
-const jacketNumberDisplay = document.querySelector('.jacketNumberDisplay');
-const jacketClickers = document.querySelector('.jacketClickers');
-const jacketPerms = document.querySelector('.jacketPerms');
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
 const DENI_CONSTANT = Math.pow(Math.E, (Math.PI / Math.SQRT2))
 const PHI = (1 + Math.sqrt(5))/2
-const ORDERS = [
+const CARDINALS = [
 		"First",
 		"Second",
 		"Third",
@@ -97,6 +94,13 @@ const ORDERS = [
 		"Twenty-Fifth",
 		"Twenty-Sixth"
 ];
+const STATE = {
+};
+const RED_LAYERS = 24;
+
+function order(n) {
+	return CARDINALS[n] + "-Order ";
+}
 
 function triangle(num) {
 	var i = 0;
@@ -105,13 +109,24 @@ function triangle(num) {
 	}
 	return i;
 }
-
+//---
 
 function render(num) {
 	if (num < 1000) {
 		return num.toString(10);
 	} else {
-		return num.toExponential(3).replace("e+", "&times;10<sup>") + "<sup>";
+		parts = num.toExponential(3).split("e+");
+		return parts[0] + "×10" + parts[1].sup();
+	}
+}
+
+function createState(player) {
+	STATE.COUNTER = 0;
+	STATE.red = {
+		succVisible: []
+	};
+	for (i = 0; i < RED_LAYERS; i++) {
+		STATE.red.succVisible.push(revealNextSuccessor(player.red, i));
 	}
 }
 
@@ -119,29 +134,29 @@ function newPlayer() {
 	var player = {
 		jacket: "red",
 		red: {
-			redNumber: 0,
-			redSuccessors: {
-				redSuccCount: [],
-				redEchoCount: [],
-				redSuccBase: [],
-				redSuccNext: [],
-				redSuccNextFactor: [],
-				redEchoInterval: [],
-				redEchoProbability: [],
-				redSuccVisible: []
+			number: 0,
+			successors: {
+				count: [],
+				echoCount: [],
+				costBase: [],
+				costNext: [],
+				costFactor: [],
+				echoInterval: [],
+				echoProbability: []
 			}
 		}
 	}
-	for (i = 0; i < 24; i++) {
-		player.red.redSuccessors.redSuccCount.push(0);
-		player.red.redSuccessors.redEchoCount.push(0);
-		player.red.redSuccessors.redSuccBase.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
-		player.red.redSuccessors.redSuccNext.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
-		player.red.redSuccessors.redSuccNextFactor.push(2 - 1/(1 + i/DENI_CONSTANT));
-		player.red.redSuccessors.redEchoInterval.push(Math.pow(PHI,i));
-		player.red.redSuccessors.redEchoProbability.push(1 / Math.pow(i+1));
-		player.red.redSuccessors.redSuccVisible.push(false);
+	r = player.red.successors;
+	for (i = 0; i < RED_LAYERS; i++) {
+		r.count.push(0);
+		r.echoCount.push(0);
+		r.costBase.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
+		r.costNext.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
+		r.costFactor.push(2 - 1/(1 + (i+1)/DENI_CONSTANT));
+		r.echoInterval.push(Math.pow(PHI,i));
+		r.echoProbability.push(1 / Math.pow(i+1));
 	}
+	createState(player);
 	return player;
 }
 
@@ -154,10 +169,15 @@ function loadPlayer() {
 		player = newPlayer();
 		console.log("Creating new player.");
 	}
+
+	// Create State.
+	createState(player);
+
 	return player;
 }
 
 function savePlayer(player) {
+	var save = player;
 	localStorage.setItem("axiomPlayer", JSON.stringify(player));
 	console.log("Saving.");
 }
@@ -167,31 +187,115 @@ function resetPlayer() {
 	console.log("Reseting.");
 }
 
-function redClickSuccessor(r) {
-	console.log("before r.redNumber: " + r.redNumber);
-	r.redNumber = r.redNumber + 1;
-	console.log("after r.redNumber: " + r.redNumber);
+function _node(nodeId, nodeType, nodeParent) {
+	var node = document.getElementById(nodeId);
+	if (node === null) {
+		if (nodeParent === null) {
+			return null;
+		}
+		node = document.createElement(nodeType);
+		node.setAttribute("id", nodeId);
+		node.appendChild(document.createTextNode(""));
+		document.getElementById(nodeParent).appendChild(node);
+		console.log("*** added " + nodeId + " to " + nodeParent + " ***");
+	}
+	return node;
+}
+
+function redDisplayNumber(red) {
+	var num = _node("redNumberDisplay", "h1", "numberDisplayMain");
+	num.classList.add("redNumber");
+	num.childNodes[0].textContent = render(red.number);
+
+	let i = 0;
+	var doc;
+	while (STATE.red.succVisible[i]) {
+		doc = _node("red" + i + "SuccessorCount", "h3", "numberDisplaySecondary");
+		doc.classList.add("redSuccessor");
+		doc.childNodes[0].textContent = 
+			r.successors.count[i]
+				+ " "
+				+ order(i)
+				+ "Successors (plus "
+				+ r.successors.echoCount[i]
+				+ " "
+				+ order(i)
+				+ "Echoes); "
+				+ render(r.successors.costNext[i])
+				+ " for next";
+		i++;
+	}
+}
+	
+function redClickSuccessor(red, layer) {
+	if (red.number >= red.successors.costNext[layer]) {
+		red.number = red.number - red.successors.costNext[layer];
+		red.successors.count[layer]++;
+		red.successors.costNext[layer] = Math.ceil(red.successors.costNext[layer] * red.successors.costFactor[layer]);
+		console.log(
+			"in layer " + layer + " " +
+			"costFactor:" + red.successors.costFactor[layer] + " " +
+			"costNext:" + red.successors.costNext[layer] + " " +
+		"");
+	} else {
+		console.log(
+			"in layer " + layer + " " +
+			"number (" + r.redNumber + ") < red.successors.costNext (" + red.successors.costNext[layer] + ") " +
+		"");
+	}
 	redDisplayNumber(r);
 }
 
-function redDisplayNumber(r) {
-	var num = document.createElement("h1");
-	num.setAttribute("id", "redNumber");
-	num.appendChild(document.createTextNode(render(r.redNumber)));
-	jacketNumberDisplay.replaceChild(num, jacketNumberDisplay.childNodes[0]);
-}
-	
-
 function createBoard(player) {
-	redDisplayNumber(player.red);
-	var btn = document.createElement("button");
-	btn.appendChild(document.createTextNode("Zeroth-Order Successor"));
-	btn.setAttribute("id", "redButton");
-	btn.classList.add("redZerothSuccessor");
-	btn.addEventListener('click', function() {
-		redClickSuccessor(player.red);
-	});
-	jacketClickers.appendChild(btn);
+	r = player.red;
+	redDisplayNumber(r);
+	var btn = _node("redSuccessor", "button", "clickerDisplayMain");
+	btn.classList.add("redSuccessor");
+	btn.replaceChild(document.createTextNode("Zeroth-Order Successor"), btn.childNodes[0]);
+}
+
+function revealNextSuccessor(red, layer) {
+	if (red.number * 2 > red.successors.costBase[layer]) {
+		var btn = _node("red" + layer + "SuccessorButton", "button", null);
+		if (btn === null) {
+			btn = _node("red" + layer + "SuccessorButton", "button", "clickerDisplaySecondary");
+			btn.replaceChild(document.createTextNode(order(layer) + "Successor"), btn.childNodes[0]);
+			btn.addEventListener('click', function() {
+				redClickSuccessor(red, layer);
+			});
+			console.log("revealNextSuccessor(red, " + layer + "): Adding redClickSuccessor(red, " + layer + ") to button \"" + order(layer) + "Successor");
+		}
+		return true;
+	} else {
+		console.log("revealNextSuccessor(red, " + layer + "): number (" + red.number + ") < costNext[" + layer + "](" + red.successors.costBase[layer]);
+		return false;
+	}
+}
+
+function heartBeat(player) {
+	STATE.COUNTER++;
+	var red = player.red;
+	var layer = 0;
+	red.number = red.number + red.successors.count[0];
+	red.number = red.number + red.successors.echoCount[0];
+	while (STATE.red.succVisible[layer]) {
+		red.successors.echoCount[layer] = red.successors.echoCount[layer] + red.successors.count[layer+1];
+		layer++;
+	}
+	if (layer === RED_LAYERS) {
+		console.log(
+			"Counter:" + STATE.COUNTER + " " +
+			"layer:" + layer + " " +
+			"All Successors added; nothing to do.");
+	} else {
+		STATE.red.succVisible[layer] = revealNextSuccessor(red, layer);
+	}
+	redClickNumber(red);
+}
+
+function redClickNumber(red) {
+	red.number++;
+	redDisplayNumber(red);
 }
 
 function main() {  // Let there be.
@@ -208,10 +312,11 @@ function main() {  // Let there be.
 		window.location.reload(false);
 	});
 	createBoard(player_obj);
+	setInterval(function() {
+		heartBeat(player_obj);
+	}, 250);
 }
 
 main() // And there was.
 
 // ---
-
-
