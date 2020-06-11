@@ -2,3 +2,5 @@
 access.log
 error.log
 
+# VIM
+*.swp

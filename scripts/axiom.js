@@ -64,8 +64,11 @@
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
-const DENI_CONSTANT = Math.pow(Math.E, (Math.PI / Math.SQRT2))
+const HB = 250;
+const BIXBY_CONSTANT = 12;
+const CRESSIDA_CONSTANT = 1000;
 const PHI = (1 + Math.sqrt(5))/2
+
 const CARDINALS = [
 		"First",
 		"Second",
@@ -94,12 +97,26 @@ const CARDINALS = [
 		"Twenty-Fifth",
 		"Twenty-Sixth"
 ];
+
 const STATE = {
 };
+
 const RED_LAYERS = 24;
 
 function order(n) {
 	return CARDINALS[n] + "-Order ";
+}
+
+function getBaseLog(x, y) {
+	return Math.log(y) / Math.log(x);
+}
+
+function cantorDim(n) {
+	return getBaseLog(3, Math.pow(2, n));
+}
+
+function genCantorDim(n) {
+	return -1 * Math.log(2, 10)/Math.log(1/(n+1)/2, 10);
 }
 
 function triangle(num) {
@@ -109,6 +126,19 @@ function triangle(num) {
 	}
 	return i;
 }
+
+function lazyCaterer(num) {
+	return triangle(num)+1;
+}
+
+function profile(fn) {
+	var start = new Date();
+	fn();
+	var end = new Date();
+	var dur = end - start;
+	//console.log("Duration: [" + dur + "]");
+}
+
 //---
 
 function render(num) {
@@ -141,20 +171,24 @@ function newPlayer() {
 				costBase: [],
 				costNext: [],
 				costFactor: [],
-				echoInterval: [],
+				echoBaseInterval: [],
+				echoCurrInterval: [],
 				echoProbability: []
 			}
 		}
 	}
 	r = player.red.successors;
+	var c;
 	for (i = 0; i < RED_LAYERS; i++) {
 		r.count.push(0);
 		r.echoCount.push(0);
-		r.costBase.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
-		r.costNext.push(Math.ceil(Math.pow(DENI_CONSTANT, triangle(i+1))));
-		r.costFactor.push(2 - 1/(1 + (i+1)/DENI_CONSTANT));
-		r.echoInterval.push(Math.pow(PHI,i));
-		r.echoProbability.push(1 / Math.pow(i+1));
+		r.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(i))));
+		r.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(i))));
+		r.costFactor.push(Math.sqrt(1/Math.sqrt(genCantorDim(i+1))));
+		c = genCantorDim(i+1);
+		r.echoBaseInterval.push(CRESSIDA_CONSTANT * Math.pow(PHI,i));
+		r.echoCurrInterval.push(CRESSIDA_CONSTANT * Math.pow(PHI,i));
+		r.echoProbability.push(1 / (i+1));
 	}
 	createState(player);
 	return player;
@@ -213,15 +247,15 @@ function redDisplayNumber(red) {
 		doc = _node("red" + i + "SuccessorCount", "h3", "numberDisplaySecondary");
 		doc.classList.add("redSuccessor");
 		doc.childNodes[0].textContent = 
-			r.successors.count[i]
+			red.successors.count[i]
 				+ " "
 				+ order(i)
 				+ "Successors (plus "
-				+ r.successors.echoCount[i]
+				+ red.successors.echoCount[i]
 				+ " "
 				+ order(i)
 				+ "Echoes); "
-				+ render(r.successors.costNext[i])
+				+ render(red.successors.costNext[i])
 				+ " for next";
 		i++;
 	}
@@ -232,18 +266,18 @@ function redClickSuccessor(red, layer) {
 		red.number = red.number - red.successors.costNext[layer];
 		red.successors.count[layer]++;
 		red.successors.costNext[layer] = Math.ceil(red.successors.costNext[layer] * red.successors.costFactor[layer]);
-		console.log(
-			"in layer " + layer + " " +
-			"costFactor:" + red.successors.costFactor[layer] + " " +
-			"costNext:" + red.successors.costNext[layer] + " " +
-		"");
-	} else {
-		console.log(
-			"in layer " + layer + " " +
-			"number (" + r.redNumber + ") < red.successors.costNext (" + red.successors.costNext[layer] + ") " +
-		"");
+		//console.log(
+		//	"in layer " + layer + " " +
+		//	"costFactor:" + red.successors.costFactor[layer] + " " +
+		//	"costNext:" + red.successors.costNext[layer] + " " +
+		//"");
+	//} else {
+		//console.log(
+	//		"in layer " + layer + " " +
+	//		"number (" + red.number + ") < red.successors.costNext (" + red.successors.costNext[layer] + ") " +
+	//	"");
 	}
-	redDisplayNumber(r);
+	redDisplayNumber(red);
 }
 
 function createBoard(player) {
@@ -263,23 +297,58 @@ function revealNextSuccessor(red, layer) {
 			btn.addEventListener('click', function() {
 				redClickSuccessor(red, layer);
 			});
-			console.log("revealNextSuccessor(red, " + layer + "): Adding redClickSuccessor(red, " + layer + ") to button \"" + order(layer) + "Successor");
+			//console.log("revealNextSuccessor(red, " + layer + "): Adding redClickSuccessor(red, " + layer + ") to button \"" + order(layer) + "Successor");
 		}
 		return true;
 	} else {
-		console.log("revealNextSuccessor(red, " + layer + "): number (" + red.number + ") < costNext[" + layer + "](" + red.successors.costBase[layer]);
+		//console.log("revealNextSuccessor(red, " + layer + "): number (" + red.number + ") < costNext[" + layer + "](" + red.successors.costBase[layer]);
 		return false;
 	}
 }
 
-function heartBeat(player) {
-	STATE.COUNTER++;
-	var red = player.red;
+function incRed(red) {
 	var layer = 0;
-	red.number = red.number + red.successors.count[0];
-	red.number = red.number + red.successors.echoCount[0];
 	while (STATE.red.succVisible[layer]) {
-		red.successors.echoCount[layer] = red.successors.echoCount[layer] + red.successors.count[layer+1];
+		var echoes = red.successors.count[layer] + red.successors.echoCount[layer];
+		red.successors.echoCurrInterval[layer] -= HB;
+		if (red.successors.echoCurrInterval[layer] < 0) {
+			if (layer === 0) {
+				red.number += echoes;
+			} else {
+				var b = getBaseLog(12, echoes / 2);
+				var batchCount = Math.floor(b);
+				console.log("layer: " + layer + ", echoes: " + echoes + ", getBaseLog(12, " + echoes + "/2): " + b + ", batch count: " + batchCount);
+				while (batchCount > 0) {
+					var batchSize = Math.floor(echoes / (2 * batchCount));
+					console.log("layer: " + layer + ", echoes: " + echoes + ", batch count: " + batchCount + ", batch size: " + batchSize);
+					for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
+						//debugger;
+						r = Math.random();
+						if (r < red.successors.echoProbability[layer]) {
+							l = layer - 1;
+							red.successors.echoCount[l] += batchSize;
+							console.log("layer: " + layer + " adds " + batchSize + " echoes to layer " + l + " in batch " + eachBatch);
+						}
+						echoes -= batchSize;
+						console.log("new echoes: " + echoes);
+					}
+					b = getBaseLog(12, echoes / 2);
+					batchCount = Math.floor(b);
+				}
+				for (eachBatch = 0; eachBatch < echoes; eachBatch++) {
+					r = Math.random();
+					if (r < red.successors.echoProbability[layer]) {
+						//console.log(r + " < " + red.successors.echoProbability[layer]);
+						red.successors.echoCount[layer-1]++;
+						//let l = layer-1;
+						//console.log("red.successors.echoCount[" + l + "]++;");
+					} else {
+						//console.log(r + " >= " + red.successors.echoProbability[layer]);
+					}
+				}
+			}
+			red.successors.echoCurrInterval[layer] += red.successors.echoBaseInterval[layer];
+		}
 		layer++;
 	}
 	if (layer === RED_LAYERS) {
@@ -290,7 +359,12 @@ function heartBeat(player) {
 	} else {
 		STATE.red.succVisible[layer] = revealNextSuccessor(red, layer);
 	}
-	redClickNumber(red);
+}
+
+function heartBeat(player) {
+	STATE.COUNTER++;
+	incRed(player.red);
+	redClickNumber(player.red);
 }
 
 function redClickNumber(red) {
@@ -313,8 +387,10 @@ function main() {  // Let there be.
 	});
 	createBoard(player_obj);
 	setInterval(function() {
-		heartBeat(player_obj);
-	}, 250);
+		profile(function() {
+			heartBeat(player_obj);
+		});
+	}, HB);
 }
 
 main() // And there was.
