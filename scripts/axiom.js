@@ -141,13 +141,52 @@ function profile(fn) {
 
 //---
 
-function render(num) {
-	if (num < 1000) {
-		return num.toString(10);
+function render(num, places) {
+	if (num < Math.pow(10, places)) {
+		return [num.toString(10), ""];
 	} else {
-		parts = num.toExponential(3).split("e+");
-		return parts[0] + "×10" + parts[1].sup();
+		return num.toExponential(places).split("e+");
 	}
+}
+
+function numberNode(nodeId, nodeType, number, places) {
+	var node = document.createElement(nodeType);
+	node.setAttribute("id", nodeId);
+	var parts = render(number, places);
+	var mantNode;
+	if (parts[1] === "") {
+		mantNode = document.createTextNode(parts[0]);
+		node.appendChild(mantNode);
+	} else {
+		mantNode = document.createTextNode(parts[0]+"×10");
+		node.appendChild(mantNode);
+		expNode = document.createElement("sup");
+		expNode.appendChild(document.createTextNode(parts[1]));
+		node.insertAdjacentElement('beforeend', expNode);
+	}
+	return node;
+}
+
+function percentNode(nodeId, nodeType, number, places) {
+	var node = document.createElement(nodeType);
+	node.setAttribute("id", nodeId);
+	number = number * 100;
+	var mant, exp = render(number, places);
+	var mantNode;
+	if (exp === "") {
+		mantNode = document.createTextNode(mant);
+		node.appendChild(mantNode);
+	} else {
+		mantNode = document.createTextNode(mant+"&times;10");
+		node.appendChild(mantNode);
+		expNode = document.createElement("sup");
+		expNode.appendChild(document.createTextNode(exp));
+		node.insertAdjacentElement('beforeend', expNode);
+	}
+	var perc = document.createElement("p");
+	perc.appendChild(document.createTextNode("%"));
+	node.insertAdjacentElement('beforeend', perc);
+	return node;
 }
 
 function createState(player) {
@@ -236,27 +275,43 @@ function _node(nodeId, nodeType, nodeParent) {
 	return node;
 }
 
+function buildLabeledNumber(anchor, textLabel, nodeType, number, places) {
+	var doc = document.createDocumentFragment();
+	var h = document.createElement(nodeType);
+	h.appendChild(document.createTextNode(textLabel));
+	h.insertAdjacentElement('beforeend', numberNode("", "span", number, places));
+	doc.appendChild(h);
+	anchor.replaceChild(doc, anchor.childNodes[0]);
+}
+
 function redDisplayNumber(red) {
 	var num = _node("redNumberDisplay", "h1", "numberDisplayMain");
 	num.classList.add("redNumber");
-	num.childNodes[0].textContent = render(red.number);
+	num.parentNode.replaceChild(numberNode("redNumberDisplay", "h1", red.number, 3), num);
 
 	let i = 0;
-	var doc;
+	var node;
 	while (STATE.red.succVisible[i]) {
-		doc = _node("red" + i + "SuccessorCount", "h3", "numberDisplaySecondary");
-		doc.classList.add("redSuccessor");
-		doc.childNodes[0].textContent = 
-			red.successors.count[i]
-				+ " "
-				+ order(i)
-				+ "Successors (plus "
-				+ red.successors.echoCount[i]
-				+ " "
-				+ order(i)
-				+ "Echoes); "
-				+ render(red.successors.costNext[i])
-				+ " for next";
+		node = _node("red" + i + "SuccessorCount", "div", "numberDisplaySecondary");
+		node.classList.add("redSuccessor");
+		buildLabeledNumber(node, order(i) + " Successors: ", "h3", red.successors.count[i], 4);
+
+		node = _node("red" + i + "SuccessorCost", "div", "numberDisplaySecondary");
+		node.classList.add("redSuccessor");
+		buildLabeledNumber(node, "Cost for next " + order(i) + " Successor: ", "h5", red.successors.costNext[i], 4);
+
+		node = _node("red" + i + "EchoCount", "div", "numberDisplaySecondary");
+		node.classList.add("redSuccessor");
+		buildLabeledNumber(node, order(i) + " Echoes: ", "h4", red.successors.echoCount[i], 4);
+
+		node = _node("red" + i + "EchoProbability", "div", "numberDisplaySecondary");
+		node.classList.add("redSuccessor");
+		buildLabeledNumber(node, order(i) + " Echo Probability: ", "h5", red.successors.echoProbability[i], 2);
+
+		node = _node("red" + i + "EchoFrequency", "div", "numberDisplaySecondary");
+		node.classList.add("redSuccessor");
+		buildLabeledNumber(node, "Next " + order(i) + " Echo (ms): ", "h5", red.successors.echoCurrInterval[i], 4);
+
 		i++;
 	}
 }
@@ -289,10 +344,11 @@ function createBoard(player) {
 }
 
 function revealNextSuccessor(red, layer) {
-	if (red.number * 2 > red.successors.costBase[layer]) {
+	if ((layer == 0) || red.number > red.successors.costBase[layer - 1]) {
 		var btn = _node("red" + layer + "SuccessorButton", "button", null);
 		if (btn === null) {
 			btn = _node("red" + layer + "SuccessorButton", "button", "clickerDisplaySecondary");
+			btn.classList.add("redSuccessor");
 			btn.replaceChild(document.createTextNode(order(layer) + "Successor"), btn.childNodes[0]);
 			btn.addEventListener('click', function() {
 				redClickSuccessor(red, layer);
