@@ -147,14 +147,6 @@ function lazyCaterer(num) {
 	return triangle(num)+1;
 }
 
-function profile(fn) {
-	var start = new Date();
-	fn();
-	var end = new Date();
-	var dur = end - start;
-	//console.log("Duration: [" + dur + "]");
-}
-
 //---
 
 function render(num, places) {
@@ -230,6 +222,8 @@ function newPlayer() {
 	r.impetusCount.push(0);
 	r.impetusCostBase.push(100);
 	r.impetusCostNext.push(100);
+
+	// TODO: Fix the emphasis/focus/impetus costs.
 	return player;
 }
 
@@ -271,6 +265,8 @@ function redDisplayNumber(red) {
 		node = document.getElementById("red" + layer + "SuccessorCost");
 		par = node.parentNode;
 		par.replaceChild(numberNode("red" + layer + "SuccessorCost", "span", red.costNext[layer], 3), node);
+
+		// TODO: finish filling in the numbers here that matter.
 	}
 }
 
@@ -294,12 +290,14 @@ function redAddLayer(red, layer) {
 	var echoList = document.createElement("ul");
 	a.appendChild(echoList);
 	var succs = document.createElement("li");
-	succs.innerHTML = '<li><span id="red' + layer + 'SuccessorCount">0</span> <span id="red' + layer + 'Successor">Successors</span><br/>(Next available at <span id="red' + layer + 'SuccessorCost"></span>)</li>';
+	succs.innerHTML = '<li><span id="red' + layer + 'SuccessorCount">0</span> <span id="red' + layer + 'SuccessorBtn">Successors</span><br/>(Next available at <span id="red' + layer + 'SuccessorCost"></span>)</li>';
 	echoList.appendChild(succs);
 	var echoes = document.createElement("li");
 	echoes.innerHTML = '<li><span id="red' + layer + 'EchoCount">0</span> <span id="red' + layer + 'Echo">Echoes</span></li>';
 	echoList.appendChild(echoes);
 	inner.appendChild(a);
+
+	// TODO: make buttons out of the "Btn" spans that increment their respective values.
 
 	var b = document.createElement("div");
 	b.classList.add("red");
@@ -321,13 +319,13 @@ function redAddLayer(red, layer) {
 	c.appendChild(document.createElement("hr"));
 	var boostList = document.createElement("ul");
 	var emphasi = document.createElement("li");
-	emphasi.innerHTML = '<li><span id="red' + layer + 'EmphasisCount">0</span> <em>Emphasi</em> boosting echo intensity<br/>(Next available at <span id="red' + layer + 'EmphasisCost"></span> echoes)</li>';
+	emphasi.innerHTML = '<li><span id="red' + layer + 'EmphasisCount">0</span> <span id="red' + layer + 'EmphasisBtn"><em>Emphasi</em></span> boosting echo intensity<br/>(Next available at <span id="red' + layer + 'EmphasisCost"></span> echoes)</li>';
 	boostList.appendChild(emphasi);
 	var foci = document.createElement("li");
-	foci.innerHTML = '<li><span id="red' + layer + 'FocusCount">0</span> <em>Foci</em> boosting echo probability<br/>(Next available at <span id="red' + layer + 'FocusCost"></span> emphasi)</li>';
+	foci.innerHTML = '<li><span id="red' + layer + 'FocusCount">0</span> <span id="red' + layer + 'FocusBtn"><em>Foci</em></span> boosting echo probability<br/>(Next available at <span id="red' + layer + 'FocusCost"></span> emphasi)</li>';
 	boostList.appendChild(foci);
 	var impeti = document.createElement("li");
-	impeti.innerHTML = '<li><span id="red0ImpetusCount">0</span> <em>Impeti</em> boosting echo frequency<br/>(Next available at <span id="red' + layer + 'ImpetusCost"></span> foci)</li>';
+	impeti.innerHTML = '<li><span id="red' + layer + 'ImpetusCount">0</span> <span id="red' + layer + 'ImpetusBtn"><em>Impeti</em></span> boosting echo frequency<br/>(Next available at <span id="red' + layer + 'ImpetusCost"></span> foci)</li>';
 	boostList.appendChild(impeti);
 	c.appendChild(boostList);
 
