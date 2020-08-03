@@ -24,7 +24,7 @@
  * -- Royal Aether - Mercury
  * -- Anacycle - Silver
  * -- Catacycle - Gold
- * The Indigo Jacket: XXX Planets: Astrology seven gateways of infinity
+ * The Cyan Jacket: XXX Planets: Astrology seven gateways of infinity
  * -- Gold -> Sun
  * -- Silver -> Moon
  * -- Mercury -> Mercury
@@ -32,6 +32,7 @@
  * -- Iron -> Mars
  * -- Jupiter -> Jupiter
  * -- Saturn -> Saturn
+ * The Blue Jacket: 
  * The Violet Jacket: Layers of the Divine: Theurgy -- Several
  * -- God-forms of each of the previous layers
  * -- Aleph-null: God-0, click
@@ -95,16 +96,31 @@ const CARDINALS = [
 		"Twenty-Third",
 		"Twenty-Fourth",
 		"Twenty-Fifth",
-		"Twenty-Sixth"
+		"Twenty-Sixth",
+		"Twenty-Seventh"
 ];
 
 const STATE = {
+	RED: {
+	},
+	ORANGE: {
+	},
+	YELLOW: {
+	},
+	GREEN: {
+	},
+	CYAN: {
+	},
+	BLUE: {
+	},
+	VIOLET: {
+	},
+	GREY: {
+	}
 };
 
-const RED_LAYERS = 24;
-
 function order(n) {
-	return CARDINALS[n] + "-Order ";
+	return CARDINALS[n] + "-Order";
 }
 
 function getBaseLog(x, y) {
@@ -167,69 +183,53 @@ function numberNode(nodeId, nodeType, number, places) {
 	return node;
 }
 
-function percentNode(nodeId, nodeType, number, places) {
-	var node = document.createElement(nodeType);
-	node.setAttribute("id", nodeId);
-	number = number * 100;
-	var mant, exp = render(number, places);
-	var mantNode;
-	if (exp === "") {
-		mantNode = document.createTextNode(mant);
-		node.appendChild(mantNode);
-	} else {
-		mantNode = document.createTextNode(mant+"&times;10");
-		node.appendChild(mantNode);
-		expNode = document.createElement("sup");
-		expNode.appendChild(document.createTextNode(exp));
-		node.insertAdjacentElement('beforeend', expNode);
-	}
-	var perc = document.createElement("p");
-	perc.appendChild(document.createTextNode("%"));
-	node.insertAdjacentElement('beforeend', perc);
-	return node;
-}
-
-function createState(player) {
-	STATE.COUNTER = 0;
-	STATE.red = {
-		succVisible: []
-	};
-	for (i = 0; i < RED_LAYERS; i++) {
-		STATE.red.succVisible.push(revealNextSuccessor(player.red, i));
-	}
-}
-
 function newPlayer() {
 	var player = {
 		jacket: "red",
+		mainCounter: 0,
 		red: {
 			number: 0,
-			successors: {
-				count: [],
-				echoCount: [],
-				costBase: [],
-				costNext: [],
-				costFactor: [],
-				echoBaseInterval: [],
-				echoCurrInterval: [],
-				echoProbability: []
-			}
+			layers: 1,
+			succCount: [],
+			echoCount: [],
+			succPower: [],
+			costBase: [],
+			costNext: [],
+			probNumer: [],
+			probDenom: [],
+			intervalMax: [],
+			intervalNext: [],
+			emphasisCount: [],
+			emphasisCostBase: [],
+			emphasisCostNext: [],
+			focusCount: [],
+			focusCostBase: [],
+			focusCostNext: [],
+			impetusCount: [],
+			impetusCostBase: [],
+			impetusCostNext: []
 		}
 	}
-	r = player.red.successors;
+	r = player.red;
 	var c;
-	for (i = 0; i < RED_LAYERS; i++) {
-		r.count.push(0);
-		r.echoCount.push(0);
-		r.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(i))));
-		r.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(i))));
-		r.costFactor.push(Math.sqrt(1/Math.sqrt(genCantorDim(i+1))));
-		c = genCantorDim(i+1);
-		r.echoBaseInterval.push(CRESSIDA_CONSTANT * Math.pow(PHI,i));
-		r.echoCurrInterval.push(CRESSIDA_CONSTANT * Math.pow(PHI,i));
-		r.echoProbability.push(1 / (i+1));
-	}
-	createState(player);
+	r.succCount.push(0);
+	r.echoCount.push(0);
+	r.succPower.push(1);
+	r.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(0))));
+	r.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(0))));
+	r.probNumer.push(1);
+	r.probDenom.push(1);
+	r.intervalMax.push(1000);
+	r.intervalNext.push(1000);
+	r.emphasisCount.push(0);
+	r.emphasisCostBase.push(10);
+	r.emphasisCostNext.push(10);
+	r.focusCount.push(0);
+	r.focusCostBase.push(50);
+	r.focusCostNext.push(50);
+	r.impetusCount.push(0);
+	r.impetusCostBase.push(100);
+	r.impetusCostNext.push(100);
 	return player;
 }
 
@@ -242,9 +242,6 @@ function loadPlayer() {
 		player = newPlayer();
 		console.log("Creating new player.");
 	}
-
-	// Create State.
-	createState(player);
 
 	return player;
 }
@@ -260,165 +257,149 @@ function resetPlayer() {
 	console.log("Reseting.");
 }
 
-function _node(nodeId, nodeType, nodeParent) {
-	var node = document.getElementById(nodeId);
-	if (node === null) {
-		if (nodeParent === null) {
-			return null;
-		}
-		node = document.createElement(nodeType);
-		node.setAttribute("id", nodeId);
-		node.appendChild(document.createTextNode(""));
-		document.getElementById(nodeParent).appendChild(node);
-		console.log("*** added " + nodeId + " to " + nodeParent + " ***");
-	}
-	return node;
-}
-
-function buildLabeledNumber(anchor, textLabel, nodeType, number, places) {
-	var doc = document.createDocumentFragment();
-	var h = document.createElement(nodeType);
-	h.appendChild(document.createTextNode(textLabel));
-	h.insertAdjacentElement('beforeend', numberNode("", "span", number, places));
-	doc.appendChild(h);
-	anchor.replaceChild(doc, anchor.childNodes[0]);
-}
-
 function redDisplayNumber(red) {
-	var num = _node("redNumberDisplay", "h1", "numberDisplayMain");
-	num.classList.add("redNumber");
-	num.parentNode.replaceChild(numberNode("redNumberDisplay", "h1", red.number, 3), num);
+	var num = document.getElementById("redNous");
+	var par = num.parentNode;
+	par.replaceChild(numberNode("redNous", "span", red.number, 3), num);
 
-	let i = 0;
 	var node;
-	while (STATE.red.succVisible[i]) {
-		node = _node("red" + i + "SuccessorCount", "div", "numberDisplaySecondary");
-		node.classList.add("redSuccessor");
-		buildLabeledNumber(node, order(i) + " Successors: ", "h3", red.successors.count[i], 4);
+	for (layer = 0; layer < red.layers; layer++) {
+		node = document.getElementById("red" + layer + "SuccessorCount");
+		par = node.parentNode;
+		par.replaceChild(numberNode("red" + layer + "SuccessorCount", "span", red.succCount[layer], 3), node);
 
-		node = _node("red" + i + "SuccessorCost", "div", "numberDisplaySecondary");
-		node.classList.add("redSuccessor");
-		buildLabeledNumber(node, "Cost for next " + order(i) + " Successor: ", "h5", red.successors.costNext[i], 4);
-
-		node = _node("red" + i + "EchoCount", "div", "numberDisplaySecondary");
-		node.classList.add("redSuccessor");
-		buildLabeledNumber(node, order(i) + " Echoes: ", "h4", red.successors.echoCount[i], 4);
-
-		node = _node("red" + i + "EchoProbability", "div", "numberDisplaySecondary");
-		node.classList.add("redSuccessor");
-		buildLabeledNumber(node, order(i) + " Echo Probability: ", "h5", red.successors.echoProbability[i], 2);
-
-		node = _node("red" + i + "EchoFrequency", "div", "numberDisplaySecondary");
-		node.classList.add("redSuccessor");
-		buildLabeledNumber(node, "Next " + order(i) + " Echo (ms): ", "h5", red.successors.echoCurrInterval[i], 4);
-
-		i++;
+		node = document.getElementById("red" + layer + "SuccessorCost");
+		par = node.parentNode;
+		par.replaceChild(numberNode("red" + layer + "SuccessorCost", "span", red.costNext[layer], 3), node);
 	}
+}
+
+function redAddLayer(red, layer) {
+	var node = document.createElement("div");
+	node.id = "red" + layer + "SuccessorPrimaryDisplay";
+	node.classList.add("red");
+	node.classList.add("innerDisplay");
+	var head = document.createElement("h3");
+	head.onclick = function() {
+		divToggle("red" + layer + "SuccessorInnerDisplay");
+	};
+	head.innerText = order(layer);
+	node.appendChild(head);
+	var inner = document.createElement("div");
+	inner.id = "red" + layer + "SuccessorInnerDisplay";
+	inner.style.display = "none";
+	var a = document.createElement("div");
+	a.classList.add("red");
+	a.classList.add("a");
+	var echoList = document.createElement("ul");
+	a.appendChild(echoList);
+	var succs = document.createElement("li");
+	succs.innerHTML = '<li><span id="red' + layer + 'SuccessorCount">0</span> <span id="red' + layer + 'Successor">Successors</span><br/>(Next available at <span id="red' + layer + 'SuccessorCost"></span>)</li>';
+	echoList.appendChild(succs);
+	var echoes = document.createElement("li");
+	echoes.innerHTML = '<li><span id="red' + layer + 'EchoCount">0</span> <span id="red' + layer + 'Echo">Echoes</span></li>';
+	echoList.appendChild(echoes);
+	inner.appendChild(a);
+
+	var b = document.createElement("div");
+	b.classList.add("red");
+	b.classList.add("b");
+	var p = document.createElement("p");
+	var produces;
+	if (layer === 0) {
+		produces = "nous";
+	} else {
+		produces = order(layer-1) + " Echoes";
+	}
+
+	p.innerHTML = '<p>have a <span id="red' + layer + 'EchoProbNumer"></span>:<span id="red' + layer + 'EchoProbDenom"></span> chance of producing <em>' + produces + '</em> in <span id="red' + layer + 'IntervalNext"></span>ms</p>';
+	b.appendChild(p);
+	inner.appendChild(b);
+	
+	var c = document.createElement("div");
+	c.style.clear = "both";
+	c.appendChild(document.createElement("hr"));
+	var boostList = document.createElement("ul");
+	var emphasi = document.createElement("li");
+	emphasi.innerHTML = '<li><span id="red' + layer + 'EmphasisCount">0</span> <em>Emphasi</em> boosting echo intensity<br/>(Next available at <span id="red' + layer + 'EmphasisCost"></span> echoes)</li>';
+	boostList.appendChild(emphasi);
+	var foci = document.createElement("li");
+	foci.innerHTML = '<li><span id="red' + layer + 'FocusCount">0</span> <em>Foci</em> boosting echo probability<br/>(Next available at <span id="red' + layer + 'FocusCost"></span> emphasi)</li>';
+	boostList.appendChild(foci);
+	var impeti = document.createElement("li");
+	impeti.innerHTML = '<li><span id="red0ImpetusCount">0</span> <em>Impeti</em> boosting echo frequency<br/>(Next available at <span id="red' + layer + 'ImpetusCost"></span> foci)</li>';
+	boostList.appendChild(impeti);
+	c.appendChild(boostList);
+
+	inner.appendChild(c);
+	node.appendChild(inner);
+
+	var root = document.getElementById("redSuccessorDisplay")
+	root.insertAdjacentElement("afterbegin", node);
+
+	
 }
 	
-function redClickSuccessor(red, layer) {
-	if (red.number >= red.successors.costNext[layer]) {
-		red.number = red.number - red.successors.costNext[layer];
-		red.successors.count[layer]++;
-		red.successors.costNext[layer] = Math.ceil(red.successors.costNext[layer] * red.successors.costFactor[layer]);
-		//console.log(
-		//	"in layer " + layer + " " +
-		//	"costFactor:" + red.successors.costFactor[layer] + " " +
-		//	"costNext:" + red.successors.costNext[layer] + " " +
-		//"");
-	//} else {
-		//console.log(
-	//		"in layer " + layer + " " +
-	//		"number (" + red.number + ") < red.successors.costNext (" + red.successors.costNext[layer] + ") " +
-	//	"");
-	}
-	redDisplayNumber(red);
-}
-
-function createBoard(player) {
-	r = player.red;
-	redDisplayNumber(r);
-	var btn = _node("redSuccessor", "button", "clickerDisplayMain");
-	btn.classList.add("redSuccessor");
-	btn.replaceChild(document.createTextNode("Zeroth-Order Successor"), btn.childNodes[0]);
-}
-
-function revealNextSuccessor(red, layer) {
-	if ((layer == 0) || red.number > red.successors.costBase[layer - 1]) {
-		var btn = _node("red" + layer + "SuccessorButton", "button", null);
-		if (btn === null) {
-			btn = _node("red" + layer + "SuccessorButton", "button", "clickerDisplaySecondary");
-			btn.classList.add("redSuccessor");
-			btn.replaceChild(document.createTextNode(order(layer) + "Successor"), btn.childNodes[0]);
-			btn.addEventListener('click', function() {
-				redClickSuccessor(red, layer);
-			});
-			//console.log("revealNextSuccessor(red, " + layer + "): Adding redClickSuccessor(red, " + layer + ") to button \"" + order(layer) + "Successor");
-		}
-		return true;
-	} else {
-		//console.log("revealNextSuccessor(red, " + layer + "): number (" + red.number + ") < costNext[" + layer + "](" + red.successors.costBase[layer]);
-		return false;
-	}
-}
-
 function incRed(red) {
-	var layer = 0;
-	while (STATE.red.succVisible[layer]) {
-		var echoes = red.successors.count[layer] + red.successors.echoCount[layer];
-		red.successors.echoCurrInterval[layer] -= HB;
-		if (red.successors.echoCurrInterval[layer] < 0) {
+	for (layer = 0; layer < red.layers; layer++) {
+		var echoes = red.succCount[layer] + red.echoCount[layer];
+		red.intervalNext[layer] -= HB;
+		if (red.intervalNext[layer] < 0) {
 			if (layer === 0) {
 				red.number += echoes;
 			} else {
 				var b = getBaseLog(12, echoes / 2);
 				var batchCount = Math.floor(b);
-				console.log("layer: " + layer + ", echoes: " + echoes + ", getBaseLog(12, " + echoes + "/2): " + b + ", batch count: " + batchCount);
 				while (batchCount > 0) {
 					var batchSize = Math.floor(echoes / (2 * batchCount));
-					console.log("layer: " + layer + ", echoes: " + echoes + ", batch count: " + batchCount + ", batch size: " + batchSize);
 					for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
 						//debugger;
 						r = Math.random();
-						if (r < red.successors.echoProbability[layer]) {
+						if (r < (red.probNumer[layer] / red.probDenom)) {
 							l = layer - 1;
 							red.successors.echoCount[l] += batchSize;
-							console.log("layer: " + layer + " adds " + batchSize + " echoes to layer " + l + " in batch " + eachBatch);
 						}
 						echoes -= batchSize;
-						console.log("new echoes: " + echoes);
 					}
 					b = getBaseLog(12, echoes / 2);
 					batchCount = Math.floor(b);
 				}
 				for (eachBatch = 0; eachBatch < echoes; eachBatch++) {
 					r = Math.random();
-					if (r < red.successors.echoProbability[layer]) {
-						//console.log(r + " < " + red.successors.echoProbability[layer]);
-						red.successors.echoCount[layer-1]++;
-						//let l = layer-1;
-						//console.log("red.successors.echoCount[" + l + "]++;");
-					} else {
-						//console.log(r + " >= " + red.successors.echoProbability[layer]);
+					if (r < (red.probNumer[layer] / red.probDenom)) {
+						red.echoCount[layer-1]++;
 					}
 				}
 			}
-			red.successors.echoCurrInterval[layer] += red.successors.echoBaseInterval[layer];
+			red.intervalNext[layer] += red.intervalMax[layer];
 		}
-		layer++;
 	}
-	if (layer === RED_LAYERS) {
-		console.log(
-			"Counter:" + STATE.COUNTER + " " +
-			"layer:" + layer + " " +
-			"All Successors added; nothing to do.");
-	} else {
-		STATE.red.succVisible[layer] = revealNextSuccessor(red, layer);
+	if (red.number > red.costBase[red.layers - 1]) {
+		redAddLayer(red, red.layers);
+		red.succCount.push(0);
+		red.echoCount.push(0);
+		red.succPower.push(1);
+		red.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(red.layers))));
+		red.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(red.layers))));
+		red.probNumer.push(1);
+		red.probDenom.push(red.layers+1);
+		red.intervalMax.push(Math.ceil(Math.pow(PHI, red.layers) * 1000));
+		red.intervalNext.push(Math.ceil(Math.pow(PHI, red.layers) * 1000));
+		red.emphasisCount.push(0);
+		red.emphasisCostBase.push(10);
+		red.emphasisCostNext.push(10);
+		red.focusCount.push(0);
+		red.focusCostBase.push(50);
+		red.focusCostNext.push(50);
+		red.impetusCount.push(0);
+		red.impetusCostBase.push(100);
+		red.impetusCostNext.push(100);
+		red.layers++;
 	}
 }
 
 function heartBeat(player) {
-	STATE.COUNTER++;
+	player.mainCounter++;
 	incRed(player.red);
 	redClickNumber(player.red);
 }
@@ -426,6 +407,12 @@ function heartBeat(player) {
 function redClickNumber(red) {
 	red.number++;
 	redDisplayNumber(red);
+}
+
+function drawBoard(player) {
+	for (layer = 0; layer < player.red.layers; layer++) {
+		redAddLayer(player.red, layer);
+	}
 }
 
 function main() {  // Let there be.
@@ -441,14 +428,15 @@ function main() {  // Let there be.
 		player_obj = newPlayer();
 		window.location.reload(false);
 	});
-	createBoard(player_obj);
+	drawBoard(player_obj);
+	
 	setInterval(function() {
-		profile(function() {
-			heartBeat(player_obj);
-		});
+		heartBeat(player_obj);
 	}, HB);
 }
 
 main() // And there was.
 
 // ---
+
+
