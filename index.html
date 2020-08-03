@@ -5,6 +5,28 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <style>
+html {
+	height: 100%;
+}
+.column {
+	overflow-y: scroll;
+	height: 62vh;
+}
+
+.innerDisplay {
+	border: 1px solid;
+	width: 48%;
+	overflow: auto;
+	
+}
+.inactive {
+	opacity: 0.1;
+}
+
+.active {
+	opacity: 1;
+}
+
 .a {
 	width: 61.8%;
 	min-width: 123;
@@ -19,42 +41,103 @@
 .footer {
 	clear: both;
 }
-.redSuccessor {
-	width: 61.8%;
-}
+
 </style>
 <body>
-<div class="jacketSelector">
-	<div id="jacketSelectorMain">
+<div id="jacketDisplay">
+	<button class="red" onclick="jacketFocus('red')">Ruby (Red)</button>
+	<button class="" onclick="jacketFocus('orange')">Citrine (Orange)</button>
+	<button class="" onclick="jacketFocus('yellow')">Topaz (Yellow)</button>
+	<button class="" onclick="jacketFocus('green')">Emerald (Green)</button>
+	<button class="" onclick="jacketFocus('cyan')">Spinel (Cyan)</button>
+	<button class="" onclick="jacketFocus('blue')">Sapphire (Blue)</button>
+	<button class="" onclick="jacketFocus('violet')">Amethyst (Violet)</button>
+	<button class="" onclick="jacketFocus('grey')">??? (???)</button>
+</div>
+<div id="mainDisplay">
+	<div id="redMainDisplay" class="red mainDisplay active" style="display:block">
+		<h1 id="redNousDisplay">Intent: <span id="redNous">0</span> <em>nous</em></h1>
+		<div id="redSuccessorDisplay" class="column">
+			<div id="redSuccessorDisplayPrimary" class="red innerDisplay">
+				<div id="redSuccessorDisplay">
+					<p>The <button id="redSuccessor">Zeroth-Order Successor</button> produces <span id="redSuccessorAmount">1</span> <em>nous</em> per click.</p>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div id="jacketSelectorSecondary">
+	<div id="orangeMainDisplay" class="orange mainDisplay inactive" style="display:none">
+		<h1>Cardinalty: <span id="orangeSulphur"></span> <em>sulphur</em></h1>
+		<h1>Fixity: <span id="orangeSalt"></span> <em>salt</em></h1>
+		<h1>Mutability: <span id="orangeQuicksilver"></span> <em>quicksilver</em></h1>
+	</div>
+	<div id="yellowMainDisplay" class="yellow mainDisplay inactive" style="display:none">
+		<h1>Body: <span id="yellowLapis"></span> <em>earth</em></h1>
+		<h1>Heart: <span id="yellowWater"></span> <em>water</em></h1>
+		<h1>Mind: <span id="yellowAir"></span> <em>air</em></h1>
+		<h1>Will: <span id="yellowFire"></span> <em>fire</em></h1>
+		<h1>Spirit: <span id="yellowAether"></span> <em>aether</em></h1>
+	</div>
+	<div id="greenMainDisplay" class="green mainDisplay inactive" style="display:none">
+		<h1>???: <span id="greenLead"></span> <em>lead</em></h1>
+		<h1>???: <span id="greenTin"></span> <em>tin</em></h1>
+		<h1>???: <span id="greenIron"></span> <em>iron</em></h1>
+		<h1>???: <span id="greenCopper"></span> <em>copper</em></h1>
+		<h1>???: <span id="greenMercury"></span> <em>mercury</em></h1>
+		<h1>???: <span id="greenSilver"></span> <em>silver</em></h1>
+		<h1>???: <span id="greenGold"></span> <em>gold</em></h1>
+	</div>
+	<div id="cyanMainDisplay" class="cyan mainDisplay inactive" style="display:none">
+		<h1>???: <span id="cyanSun"></span> <em>sun</em></h1>
+		<h1>???: <span id="cyanMoon"></span> <em>moon</em></h1>
+		<h1>???: <span id="cyanMercury"></span> <em>mercury</em></h1>
+		<h1>???: <span id="cyanVenus"></span> <em>venus</em></h1>
+		<h1>???: <span id="cyanMars"></span> <em>mars</em></h1>
+		<h1>???: <span id="cyanJupiter"></span> <em>jupiter</em></h1>
+		<h1>???: <span id="cyanSaturn"></span> <em>saturn</em></h1>
+	</div>
+	<div id="blueMainDisplay" class="blue mainDisplay inactive" style="display:none">
+		<h1>???: <span id="blueBody"></span> <em>body</em></h1>
+		<h1>???: <span id="blueHeart"></span> <em>heart</em></h1>
+		<h1>???: <span id="blueMind"></span> <em>mind</em></h1>
+		<h1>???: <span id="bluewill"></span> <em>will</em></h1>
+		<h1>???: <span id="blueSpirit"></span> <em>spirit</em></h1>
+	</div>
+	<div id="violetMainDisplay" class="violet mainDisplay inactive" style="display:none">
+		<h1>???: <span id="violetCardinality"></span> <em>cardinality</em></h1>
+		<h1>???: <span id="violetFixity"></span> <em>fixity</em></h1>
+		<h1>???: <span id="violetMutability"></span> <em>mutability</em></h1>
+	</div>
+	<div id="greyMainDisplay" class="grey mainDisplay inactive" style="display:none">
+		<h1>???: <span id="greyIntent"></span> <em>intent</em></h1>
 	</div>
 </div>
 <div class="redDisplay">
-	<div class="numberDisplay a">
-		<div id="numberDisplayMain">
-		</div>
-		<div id="numberDisplaySecondary">
-		</div>
-	</div>
-	<div class="clickerDisplay b">
-		<div id="clickerDisplayMain">
-		</div>
-		<div id="clickerDisplaySecondary">
-		</div>
-	</div>
-	<div class="permanentDisplay">
-		<div id="permanentDisplayMain">
-		</div>
-		<div id="permanentDisplaySecondary">
-		</div>
-	</div>
 </div>
 <div class="footer">
 	<p class="saveLink">Save</p>
 	<p class="loadLink">Load</p>
 	<p class="resetLink">Reset</p>
 </div>
+<script>
+    function jacketFocus(jacketColor) {
+		var i;
+		var x = document.getElementsByClassName("mainDisplay");
+		for (i = 0; i < x.length; i++) {
+			x[i].style.display = "none";
+		}
+		document.getElementById(jacketColor + "MainDisplay").style.display = "block";
+	}
+
+    function divToggle(divId) {
+		var i;
+		var x = document.getElementById(divId);
+		if (x.style.display === "block") {
+			x.style.display = "none";
+		} else {
+			x.style.display = "block";
+		}
+	}
+</script>
 <script src="scripts/axiom.js"></script>
 </body>
 </html>
