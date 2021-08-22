@@ -4,7 +4,7 @@
  * 0
  * The Red Jacket: Mathematics -- three ways to get to infinity
  * -- addition, multiplication, exponentiation
- * The Orange Jacket: Three Primes: Subatomic Theory - four ways to get to infinity
+ * The Orange Jacket: Three Primes: Subatomic Theory - five ways to get to infinity
  * -- addition-dominant: salt
  * -- multiplication-dominant: quicksilver
  * -- exponentiation-dominant: sulphur
@@ -65,7 +65,7 @@
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
-const HB = 250;
+const HB = 33;
 const BIXBY_CONSTANT = 12;
 const CRESSIDA_CONSTANT = 1000;
 const PHI = (1 + Math.sqrt(5))/2
@@ -97,27 +97,9 @@ const CARDINALS = [
 		"Twenty-Fourth",
 		"Twenty-Fifth",
 		"Twenty-Sixth",
-		"Twenty-Seventh"
+		"Twenty-Seventh",
+		"Twenty-Eighth"
 ];
-
-const STATE = {
-	RED: {
-	},
-	ORANGE: {
-	},
-	YELLOW: {
-	},
-	GREEN: {
-	},
-	CYAN: {
-	},
-	BLUE: {
-	},
-	VIOLET: {
-	},
-	GREY: {
-	}
-};
 
 function order(n) {
 	return CARDINALS[n] + "-Order";
@@ -147,88 +129,59 @@ function lazyCaterer(num) {
 	return triangle(num)+1;
 }
 
-//---
-
-function render(num, places) {
-	if (num < Math.pow(10, places)) {
-		return [num.toString(10), ""];
-	} else {
-		return num.toExponential(places).split("e+");
-	}
-}
-
-function numberNode(nodeId, nodeType, number, places) {
-	var node = document.createElement(nodeType);
-	node.setAttribute("id", nodeId);
-	var parts = render(number, places);
-	var mantNode;
-	if (parts[1] === "") {
-		mantNode = document.createTextNode(parts[0]);
-		node.appendChild(mantNode);
-	} else {
-		mantNode = document.createTextNode(parts[0]+"×10");
-		node.appendChild(mantNode);
-		expNode = document.createElement("sup");
-		expNode.appendChild(document.createTextNode(parts[1]));
-		node.insertAdjacentElement('beforeend', expNode);
-	}
-	return node;
-}
-
 function newPlayer() {
-	var player = {
+	return {
+		version: "0.0.1",
 		jacket: "red",
 		mainCounter: 0,
 		red: {
-			number: 0,
-			layers: 1,
-			succCount: [],
-			echoCount: [],
-			succPower: [],
-			costBase: [],
-			costNext: [],
-			probNumer: [],
-			probDenom: [],
-			intervalMax: [],
-			intervalNext: [],
-			emphasisCount: [],
-			emphasisCostBase: [],
-			emphasisCostNext: [],
-			focusCount: [],
-			focusCostBase: [],
-			focusCostNext: [],
-			impetusCount: [],
-			impetusCostBase: [],
-			impetusCostNext: []
+			zero: {
+				nous: 0,
+				impetus: 1,
+			},
+			one: {
+				visibleAt: (12**1)/2,
+				cost: 12**1,
+				power: (13.0*(12.0**0)+0)/(12.0**1),
+				oddsNumerator: 1,
+				oddsDenominator: 1,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: 1000,
+				nextIn: 1000,
+			},
+			two: {
+				visibleAt: (12**2)/2,
+				cost: 12**2,
+				power: (13.0*(12.0**1)+(12.0**0))/(12.0**2),
+				oddsNumerator: 1,
+				oddsDenominator: 2,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*PHI),
+				nextIn: Math.floor(1000*PHI),
+			},
+			three: {
+				visibleAt: (12**3)/2,
+				cost: 12**3,
+				power: (13.0*(12.0**2)+(12.0**1))/(12.0**3),
+				oddsNumerator: 1,
+				oddsDenominator: 3,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*PHI*PHI),
+				nextIn: Math.floor(1000*PHI*PHI),
+			}
 		}
 	}
-	r = player.red;
-	var c;
-	r.succCount.push(0);
-	r.echoCount.push(0);
-	r.succPower.push(1);
-	r.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(0))));
-	r.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(0))));
-	r.probNumer.push(1);
-	r.probDenom.push(1);
-	r.intervalMax.push(1000);
-	r.intervalNext.push(1000);
-	r.emphasisCount.push(0);
-	r.emphasisCostBase.push(10);
-	r.emphasisCostNext.push(10);
-	r.focusCount.push(0);
-	r.focusCostBase.push(50);
-	r.focusCostNext.push(50);
-	r.impetusCount.push(0);
-	r.impetusCostBase.push(100);
-	r.impetusCostNext.push(100);
-
-	// TODO: Fix the emphasis/focus/impetus costs.
-	return player;
 }
 
+//---
+
 function loadPlayer() {
-	var player;
 	if (localStorage.getItem("axiomPlayer")) {
 		player = JSON.parse(localStorage.getItem("axiomPlayer"));
 		console.log("Loading: %o", player);
@@ -251,167 +204,103 @@ function resetPlayer() {
 	console.log("Reseting.");
 }
 
-function redDisplayNumber(red) {
-	var num = document.getElementById("redNous");
-	var par = num.parentNode;
-	par.replaceChild(numberNode("redNous", "span", red.number, 3), num);
-
-	var node;
-	for (layer = 0; layer < red.layers; layer++) {
-		node = document.getElementById("red" + layer + "SuccessorCount");
-		par = node.parentNode;
-		par.replaceChild(numberNode("red" + layer + "SuccessorCount", "span", red.succCount[layer], 3), node);
-
-		node = document.getElementById("red" + layer + "SuccessorCost");
-		par = node.parentNode;
-		par.replaceChild(numberNode("red" + layer + "SuccessorCost", "span", red.costNext[layer], 3), node);
-
-		// TODO: finish filling in the numbers here that matter.
-	}
-}
-
-function redAddLayer(red, layer) {
-	var node = document.createElement("div");
-	node.id = "red" + layer + "SuccessorPrimaryDisplay";
-	node.classList.add("red");
-	node.classList.add("innerDisplay");
-	var head = document.createElement("h3");
-	head.onclick = function() {
-		divToggle("red" + layer + "SuccessorInnerDisplay");
-	};
-	head.innerText = order(layer);
-	node.appendChild(head);
-	var inner = document.createElement("div");
-	inner.id = "red" + layer + "SuccessorInnerDisplay";
-	inner.style.display = "none";
-	var a = document.createElement("div");
-	a.classList.add("red");
-	a.classList.add("a");
-	var echoList = document.createElement("ul");
-	a.appendChild(echoList);
-	var succs = document.createElement("li");
-	succs.innerHTML = '<li><span id="red' + layer + 'SuccessorCount">0</span> <span id="red' + layer + 'SuccessorBtn">Successors</span><br/>(Next available at <span id="red' + layer + 'SuccessorCost"></span>)</li>';
-	echoList.appendChild(succs);
-	var echoes = document.createElement("li");
-	echoes.innerHTML = '<li><span id="red' + layer + 'EchoCount">0</span> <span id="red' + layer + 'Echo">Echoes</span></li>';
-	echoList.appendChild(echoes);
-	inner.appendChild(a);
-
-	// TODO: make buttons out of the "Btn" spans that increment their respective values.
-
-	var b = document.createElement("div");
-	b.classList.add("red");
-	b.classList.add("b");
-	var p = document.createElement("p");
-	var produces;
-	if (layer === 0) {
-		produces = "nous";
-	} else {
-		produces = order(layer-1) + " Echoes";
-	}
-
-	p.innerHTML = '<p>have a <span id="red' + layer + 'EchoProbNumer"></span>:<span id="red' + layer + 'EchoProbDenom"></span> chance of producing <em>' + produces + '</em> in <span id="red' + layer + 'IntervalNext"></span>ms</p>';
-	b.appendChild(p);
-	inner.appendChild(b);
-	
-	var c = document.createElement("div");
-	c.style.clear = "both";
-	c.appendChild(document.createElement("hr"));
-	var boostList = document.createElement("ul");
-	var emphasi = document.createElement("li");
-	emphasi.innerHTML = '<li><span id="red' + layer + 'EmphasisCount">0</span> <span id="red' + layer + 'EmphasisBtn"><em>Emphasi</em></span> boosting echo intensity<br/>(Next available at <span id="red' + layer + 'EmphasisCost"></span> echoes)</li>';
-	boostList.appendChild(emphasi);
-	var foci = document.createElement("li");
-	foci.innerHTML = '<li><span id="red' + layer + 'FocusCount">0</span> <span id="red' + layer + 'FocusBtn"><em>Foci</em></span> boosting echo probability<br/>(Next available at <span id="red' + layer + 'FocusCost"></span> emphasi)</li>';
-	boostList.appendChild(foci);
-	var impeti = document.createElement("li");
-	impeti.innerHTML = '<li><span id="red' + layer + 'ImpetusCount">0</span> <span id="red' + layer + 'ImpetusBtn"><em>Impeti</em></span> boosting echo frequency<br/>(Next available at <span id="red' + layer + 'ImpetusCost"></span> foci)</li>';
-	boostList.appendChild(impeti);
-	c.appendChild(boostList);
-
-	inner.appendChild(c);
-	node.appendChild(inner);
-
-	var root = document.getElementById("redSuccessorDisplay")
-	root.insertAdjacentElement("afterbegin", node);
-
-	
-}
-	
 function incRed(red) {
-	for (layer = 0; layer < red.layers; layer++) {
-		var echoes = red.succCount[layer] + red.echoCount[layer];
-		red.intervalNext[layer] -= HB;
-		if (red.intervalNext[layer] < 0) {
-			if (layer === 0) {
-				red.number += echoes;
-			} else {
-				var b = getBaseLog(12, echoes / 2);
-				var batchCount = Math.floor(b);
-				while (batchCount > 0) {
-					var batchSize = Math.floor(echoes / (2 * batchCount));
-					for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
-						//debugger;
-						r = Math.random();
-						if (r < (red.probNumer[layer] / red.probDenom)) {
-							l = layer - 1;
-							red.successors.echoCount[l] += batchSize;
-						}
-						echoes -= batchSize;
-					}
-					b = getBaseLog(12, echoes / 2);
-					batchCount = Math.floor(b);
-				}
-				for (eachBatch = 0; eachBatch < echoes; eachBatch++) {
-					r = Math.random();
-					if (r < (red.probNumer[layer] / red.probDenom)) {
-						red.echoCount[layer-1]++;
-					}
-				}
-			}
-			red.intervalNext[layer] += red.intervalMax[layer];
-		}
+    let one = red.one
+	one.nextIn = one.nextIn - HB
+	if (one.nextIn < 0) {
+		let oneTotal = one.count + one.echoes
+		red.zero.nous = red.zero.nous + (oneTotal * one.impetus)
+		one.nextIn = one.nextIn + one.interval
 	}
-	if (red.number > red.costBase[red.layers - 1]) {
-		redAddLayer(red, red.layers);
-		red.succCount.push(0);
-		red.echoCount.push(0);
-		red.succPower.push(1);
-		red.costBase.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(red.layers))));
-		red.costNext.push(Math.ceil(Math.pow(BIXBY_CONSTANT, lazyCaterer(red.layers))));
-		red.probNumer.push(1);
-		red.probDenom.push(red.layers+1);
-		red.intervalMax.push(Math.ceil(Math.pow(PHI, red.layers) * 1000));
-		red.intervalNext.push(Math.ceil(Math.pow(PHI, red.layers) * 1000));
-		red.emphasisCount.push(0);
-		red.emphasisCostBase.push(10);
-		red.emphasisCostNext.push(10);
-		red.focusCount.push(0);
-		red.focusCostBase.push(50);
-		red.focusCostNext.push(50);
-		red.impetusCount.push(0);
-		red.impetusCostBase.push(100);
-		red.impetusCostNext.push(100);
-		red.layers++;
+
+    redBatchInc(red.two, red.one)
+    redBatchInc(red.three, red.two)
+}
+
+function redBatchInc(redCurr, redPrev) {
+	redCurr.nextIn = redCurr.nextIn - HB
+	if (redCurr.nextIn < 0) {
+		let total = redCurr.count + redCurr.echoes
+		var b = getBaseLog(12, total / 2);
+		var batchCount = Math.floor(b);
+		while (batchCount > 0) {
+			var batchSize = Math.floor(total / (2 * batchCount));
+			for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
+				if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
+					redPrev.echoes += batchSize;
+				}
+				total -= batchSize;
+			}
+			b = getBaseLog(12, total / 2);
+			batchCount = Math.floor(b);
+		}
+		for (eachBatch = 0; eachBatch < total; eachBatch++) {
+			if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
+				redPrev.echoes++;
+			}
+		}
+		redCurr.nextIn = redCurr.nextIn + redCurr.interval
 	}
 }
 
 function heartBeat(player) {
 	player.mainCounter++;
 	incRed(player.red);
-	redClickNumber(player.red);
+	redraw(player)
 }
 
-function redClickNumber(red) {
-	red.number++;
-	redDisplayNumber(red);
+function redZero() {
+	player.red.zero.nous += player.red.zero.impetus;
 }
 
-function drawBoard(player) {
-	for (layer = 0; layer < player.red.layers; layer++) {
-		redAddLayer(player.red, layer);
+function redBuySuccessor(redSucc, nous) {
+    if(nous >= redSucc.cost){
+        redSucc.count = redSucc.count + 1;
+    	nous = nous - redSucc.cost;
+		redSucc.cost = Math.floor(Math.pow(redSucc.cost, redSucc.power));
+	};
+}
+
+function redOne(){
+	redBuySuccessor(player.red.one, player.red.zero.nous)
+}    
+
+function redTwo(){
+	redBuySuccessor(player.red.two, player.red.zero.nous)
+}    
+
+function redThree(){
+	redBuySuccessor(player.red.three, player.red.zero.nous)
+}    
+
+function redraw(player) {
+	document.getElementById("redNous").innerHTML = player.red.zero.nous;
+
+	document.getElementById("redOneCount").innerHTML = player.red.one.count;
+	document.getElementById("redOneEchoes").innerHTML = player.red.one.echoes;
+	document.getElementById("redOneCost").innerHTML = player.red.one.cost;
+	document.getElementById("redOneInterval").innerHTML = player.red.one.nextIn;
+	if (player.red.zero.nous >= player.red.one.visibleAt) {
+		document.getElementById("redOneDisplay").style.display = "block";
+	}
+
+	document.getElementById("redTwoCount").innerHTML = player.red.two.count;
+	document.getElementById("redTwoEchoes").innerHTML = player.red.two.echoes;
+	document.getElementById("redTwoCost").innerHTML = player.red.two.cost;
+	document.getElementById("redTwoInterval").innerHTML = player.red.two.nextIn;
+	if (player.red.zero.nous >= player.red.two.visibleAt) {
+		document.getElementById("redTwoDisplay").style.display = "block";
+	}
+
+	document.getElementById("redThreeCount").innerHTML = player.red.three.count;
+	document.getElementById("redThreeEchoes").innerHTML = player.red.three.echoes;
+	document.getElementById("redThreeCost").innerHTML = player.red.three.cost;
+	document.getElementById("redThreeInterval").innerHTML = player.red.three.nextIn;
+	if (player.red.zero.nous >= player.red.three.visibleAt) {
+		document.getElementById("redThreeDisplay").style.display = "block";
 	}
 }
+
 
 function main() {  // Let there be.
 	var player_obj = loadPlayer();
@@ -426,7 +315,6 @@ function main() {  // Let there be.
 		player_obj = newPlayer();
 		window.location.reload(false);
 	});
-	drawBoard(player_obj);
 	
 	setInterval(function() {
 		heartBeat(player_obj);
@@ -434,7 +322,6 @@ function main() {  // Let there be.
 }
 
 main() // And there was.
-
 // ---
 
 
