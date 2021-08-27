@@ -136,44 +136,100 @@ function newPlayer() {
 		mainCounter: 0,
 		red: {
 			zero: {
+				isZero: true,
 				nous: 0,
 				impetus: 1,
 			},
 			one: {
+				isZero: false,
 				visibleAt: (12**1)/2,
 				cost: 12**1,
 				power: (13.0*(12.0**0)+0)/(12.0**1),
-				oddsNumerator: 1,
-				oddsDenominator: 1,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: 1000,
-				nextIn: 1000,
-			},
-			two: {
-				visibleAt: (12**2)/2,
-				cost: 12**2,
-				power: (13.0*(12.0**1)+(12.0**0))/(12.0**2),
 				oddsNumerator: 1,
 				oddsDenominator: 2,
 				count: 0,
 				echoes: 0,
 				impetus: 1,
-				interval: Math.floor(1000*PHI),
-				nextIn: Math.floor(1000*PHI),
+				interval: Math.floor(1000*Math.pow(PHI, 0)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 0)),
 			},
-			three: {
-				visibleAt: (12**3)/2,
-				cost: 12**3,
-				power: (13.0*(12.0**2)+(12.0**1))/(12.0**3),
+			two: {
+				isZero: false,
+				visibleAt: (12**2)/2,
+				cost: 12**2,
+				power: (13.0*(12.0**1)+(12.0**0))/(12.0**2),
 				oddsNumerator: 1,
 				oddsDenominator: 3,
 				count: 0,
 				echoes: 0,
 				impetus: 1,
-				interval: Math.floor(1000*PHI*PHI),
-				nextIn: Math.floor(1000*PHI*PHI),
+				interval: Math.floor(1000*Math.pow(PHI, 1)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 1)),
+			},
+			three: {
+				isZero: false,
+				visibleAt: (12**3)/2,
+				cost: 12**3,
+				power: (13.0*(12.0**2)+(12.0**1))/(12.0**3),
+				oddsNumerator: 1,
+				oddsDenominator: 4,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*Math.pow(PHI, 2)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 2)),
+			},
+			four: {
+				isZero: false,
+				visibleAt: (12**4)/2,
+				cost: 12**4,
+				power: (13.0*(12.0**3)+(12.0**2))/(12.0**4),
+				oddsNumerator: 1,
+				oddsDenominator: 5,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*Math.pow(PHI, 3)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 3)),
+			},
+			five: {
+				isZero: false,
+				visibleAt: (12**5)/2,
+				cost: 12**5,
+				power: (13.0*(12.0**4)+(12.0**3))/(12.0**5),
+				oddsNumerator: 1,
+				oddsDenominator: 6,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*Math.pow(PHI, 4)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 4)),
+			},
+			six: {
+				isZero: false,
+				visibleAt: (12**6)/2,
+				cost: 12**6,
+				power: (13.0*(12.0**5)+(12.0**4))/(12.0**6),
+				oddsNumerator: 1,
+				oddsDenominator: 7,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*Math.pow(PHI, 5)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 5)),
+			},
+			seven: {
+				isZero: false,
+				visibleAt: (12**7)/2,
+				cost: 12**7,
+				power: (13.0*(12.0**6)+(12.0**5))/(12.0**7),
+				oddsNumerator: 1,
+				oddsDenominator: 7,
+				count: 0,
+				echoes: 0,
+				impetus: 1,
+				interval: Math.floor(1000*Math.pow(PHI, 6)),
+				nextIn: Math.floor(1000*Math.pow(PHI, 6)),
 			}
 		}
 	}
@@ -205,16 +261,13 @@ function resetPlayer() {
 }
 
 function incRed(red) {
-    let one = red.one
-	one.nextIn = one.nextIn - HB
-	if (one.nextIn < 0) {
-		let oneTotal = one.count + one.echoes
-		red.zero.nous = red.zero.nous + (oneTotal * one.impetus)
-		one.nextIn = one.nextIn + one.interval
-	}
-
+    redBatchInc(red.one, red.zero)
     redBatchInc(red.two, red.one)
     redBatchInc(red.three, red.two)
+    redBatchInc(red.four, red.three)
+    redBatchInc(red.five, red.four)
+    redBatchInc(red.six, red.five)
+    redBatchInc(red.seven, red.six)
 }
 
 function redBatchInc(redCurr, redPrev) {
@@ -227,7 +280,11 @@ function redBatchInc(redCurr, redPrev) {
 			var batchSize = Math.floor(total / (2 * batchCount));
 			for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
 				if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-					redPrev.echoes += batchSize;
+					if (redPrev.isZero) {
+						redPrev.nous += batchSize;
+					} else {
+						redPrev.echoes += batchSize;
+					}
 				}
 				total -= batchSize;
 			}
@@ -236,8 +293,12 @@ function redBatchInc(redCurr, redPrev) {
 		}
 		for (eachBatch = 0; eachBatch < total; eachBatch++) {
 			if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-				redPrev.echoes++;
-			}
+				if (redPrev.isZero) {
+					redPrev.nous++;
+				} else {
+					redPrev.echoes++;
+				}
+		}
 		}
 		redCurr.nextIn = redCurr.nextIn + redCurr.interval
 	}
@@ -253,54 +314,67 @@ function redZero() {
 	player.red.zero.nous += player.red.zero.impetus;
 }
 
-function redBuySuccessor(redSucc, nous) {
-    if(nous >= redSucc.cost){
+function redBuySuccessor(redSucc, zero) {
+    if(zero.nous >= redSucc.cost){
         redSucc.count = redSucc.count + 1;
-    	nous = nous - redSucc.cost;
+    	zero.nous = zero.nous - redSucc.cost;
 		redSucc.cost = Math.floor(Math.pow(redSucc.cost, redSucc.power));
 	};
 }
 
 function redOne(){
-	redBuySuccessor(player.red.one, player.red.zero.nous)
+	redBuySuccessor(player.red.one, player.red.zero)
 }    
 
 function redTwo(){
-	redBuySuccessor(player.red.two, player.red.zero.nous)
+	redBuySuccessor(player.red.two, player.red.zero)
 }    
 
 function redThree(){
-	redBuySuccessor(player.red.three, player.red.zero.nous)
+	redBuySuccessor(player.red.three, player.red.zero)
 }    
+
+function redFour(){
+	redBuySuccessor(player.red.four, player.red.zero)
+}    
+
+function redFive(){
+	redBuySuccessor(player.red.five, player.red.zero)
+}    
+
+function redSix(){
+	redBuySuccessor(player.red.six, player.red.zero)
+}    
+
+function redSeven(){
+	redBuySuccessor(player.red.seven, player.red.zero)
+}    
+
 
 function redraw(player) {
 	document.getElementById("redNous").innerHTML = player.red.zero.nous;
-
-	document.getElementById("redOneCount").innerHTML = player.red.one.count;
-	document.getElementById("redOneEchoes").innerHTML = player.red.one.echoes;
-	document.getElementById("redOneCost").innerHTML = player.red.one.cost;
-	document.getElementById("redOneInterval").innerHTML = player.red.one.nextIn;
-	if (player.red.zero.nous >= player.red.one.visibleAt) {
-		document.getElementById("redOneDisplay").style.display = "block";
-	}
-
-	document.getElementById("redTwoCount").innerHTML = player.red.two.count;
-	document.getElementById("redTwoEchoes").innerHTML = player.red.two.echoes;
-	document.getElementById("redTwoCost").innerHTML = player.red.two.cost;
-	document.getElementById("redTwoInterval").innerHTML = player.red.two.nextIn;
-	if (player.red.zero.nous >= player.red.two.visibleAt) {
-		document.getElementById("redTwoDisplay").style.display = "block";
-	}
-
-	document.getElementById("redThreeCount").innerHTML = player.red.three.count;
-	document.getElementById("redThreeEchoes").innerHTML = player.red.three.echoes;
-	document.getElementById("redThreeCost").innerHTML = player.red.three.cost;
-	document.getElementById("redThreeInterval").innerHTML = player.red.three.nextIn;
-	if (player.red.zero.nous >= player.red.three.visibleAt) {
-		document.getElementById("redThreeDisplay").style.display = "block";
-	}
+	drawRed("One", player.red.one, player.red.zero.nous)
+	drawRed("Two", player.red.two, player.red.zero.nous)
+	drawRed("Three", player.red.three, player.red.zero.nous)
+	drawRed("Four", player.red.four, player.red.zero.nous)
+	drawRed("Five", player.red.five, player.red.zero.nous)
+	drawRed("Six", player.red.six, player.red.zero.nous)
+	drawRed("Seven", player.red.seven, player.red.zero.nous)
 }
 
+function drawRed(numstr, rednum, nous) {
+	document.getElementById("red" + numstr + "Count").innerHTML = rednum.count;
+	document.getElementById("red" + numstr + "Echoes").innerHTML = rednum.echoes;
+	document.getElementById("red" + numstr + "Cost").innerHTML = rednum.cost;
+	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = rednum.oddsNumerator;
+	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = rednum.oddsDenominator;
+	document.getElementById("red" + numstr + "Cost").innerHTML = rednum.cost;
+	document.getElementById("red" + numstr + "Interval").innerHTML = rednum.interval;
+	document.getElementById("red" + numstr + "NextIn").innerHTML = rednum.nextIn;
+	if (nous >= rednum.visibleAt) {
+		document.getElementById("red" + numstr + "Display").style.display = "block";
+	}
+}
 
 function main() {  // Let there be.
 	var player_obj = loadPlayer();
