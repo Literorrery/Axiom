@@ -62,6 +62,9 @@
  * -- Zero
  */
 
+import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
+import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
+
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
@@ -94,11 +97,6 @@ const CARDINALS = [
 		"Twenty-First",
 		"Twenty-Second",
 		"Twenty-Third",
-		"Twenty-Fourth",
-		"Twenty-Fifth",
-		"Twenty-Sixth",
-		"Twenty-Seventh",
-		"Twenty-Eighth"
 ];
 
 function order(n) {
@@ -133,103 +131,110 @@ function newPlayer() {
 	return {
 		version: "0.0.1",
 		jacket: "red",
-		mainCounter: 0,
+		mainCounter: Decimal(0),
 		red: {
 			zero: {
-				isZero: true,
-				nous: 0,
-				impetus: 1,
+				depth: 0,
+				nous: Decimal(0),
+				impetus: Decimal(1),
+				streak: 0,
 			},
 			one: {
-				isZero: false,
-				visibleAt: (12**1)/2,
-				cost: 12**1,
-				power: (13.0*(12.0**0)+0)/(12.0**1),
-				oddsNumerator: 1,
-				oddsDenominator: 2,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 0)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 0)),
+				depth: 1,
+				visibleAt: Decimal(12**1)/2,
+				cost: Decimal(12**1),
+				power: Decimal(13.0*(12.0**0)+0)/(12.0**1),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(2),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 0))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 0))),
 			},
 			two: {
+				depth: 2,
 				isZero: false,
-				visibleAt: (12**2)/2,
-				cost: 12**2,
-				power: (13.0*(12.0**1)+(12.0**0))/(12.0**2),
-				oddsNumerator: 1,
-				oddsDenominator: 3,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 1)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 1)),
+				visibleAt: Decimal((12**2)/2),
+				cost: Decimal(12**2),
+				power: Decimal(13.0*(12.0**1)+(12.0**0))/(12.0**2),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(3),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 1))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 1))),
 			},
 			three: {
+				depth: 3,
 				isZero: false,
-				visibleAt: (12**3)/2,
-				cost: 12**3,
-				power: (13.0*(12.0**2)+(12.0**1))/(12.0**3),
-				oddsNumerator: 1,
-				oddsDenominator: 4,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 2)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 2)),
+				visibleAt: Decimal((12**3)/2),
+				cost: Decimal(12**3),
+				power: Decimal((13.0*(12.0**2)+(12.0**1))/(12.0**3)),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(4),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 2))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 2))),
 			},
 			four: {
+				depth: 4,
 				isZero: false,
-				visibleAt: (12**4)/2,
-				cost: 12**4,
-				power: (13.0*(12.0**3)+(12.0**2))/(12.0**4),
-				oddsNumerator: 1,
-				oddsDenominator: 5,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 3)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 3)),
+				visibleAt: Decimal((12**4)/2),
+				cost: Decimal(12**4),
+				power: Decimal((13.0*(12.0**3)+(12.0**2))/(12.0**4)),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(5),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 3))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 3))),
 			},
 			five: {
+				depth: 5,
 				isZero: false,
-				visibleAt: (12**5)/2,
-				cost: 12**5,
-				power: (13.0*(12.0**4)+(12.0**3))/(12.0**5),
-				oddsNumerator: 1,
-				oddsDenominator: 6,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 4)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 4)),
+				visibleAt: Decimal((12**5)/2),
+				cost: Decimal(12**5),
+				power: Decimal((13.0*(12.0**4)+(12.0**3))/(12.0**5)),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(6),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 4))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 4))),
 			},
 			six: {
+				depth: 6,
 				isZero: false,
-				visibleAt: (12**6)/2,
-				cost: 12**6,
-				power: (13.0*(12.0**5)+(12.0**4))/(12.0**6),
-				oddsNumerator: 1,
-				oddsDenominator: 7,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 5)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 5)),
+				visibleAt: Decimal((12**6)/2),
+				cost: Decimal(12**6),
+				power: Decimal((13.0*(12.0**5)+(12.0**4))/(12.0**6)),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(7),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 5))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 5))),
 			},
 			seven: {
+				depth: 7,
 				isZero: false,
-				visibleAt: (12**7)/2,
-				cost: 12**7,
-				power: (13.0*(12.0**6)+(12.0**5))/(12.0**7),
-				oddsNumerator: 1,
-				oddsDenominator: 7,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*Math.pow(PHI, 6)),
-				nextIn: Math.floor(1000*Math.pow(PHI, 6)),
+				visibleAt: Decimal((12**7)/2),
+				cost: Decimal(12**7),
+				power: Decimal((13.0*(12.0**6)+(12.0**5))/(12.0**7)),
+				oddsNumerator: Decimal(1),
+				oddsDenominator: Decimal(8),
+				count: Decimal(0),
+				echoes: Decimal(0),
+				impetus: Decimal(1),
+				interval: Decimal(Math.floor(1000*Math.pow(PHI, 6))),
+				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 6))),
 			}
 		}
 	}
@@ -238,6 +243,7 @@ function newPlayer() {
 //---
 
 function loadPlayer() {
+	let player;
 	if (localStorage.getItem("axiomPlayer")) {
 		player = JSON.parse(localStorage.getItem("axiomPlayer"));
 		console.log("Loading: %o", player);
@@ -251,7 +257,7 @@ function loadPlayer() {
 
 function savePlayer(player) {
 	var save = player;
-	localStorage.setItem("axiomPlayer", JSON.stringify(player));
+	localStorage.setItem("axiomPlayer", JSON.stringify(save));
 	console.log("Saving.");
 }
 
@@ -261,95 +267,68 @@ function resetPlayer() {
 }
 
 function incRed(red) {
-    redBatchInc(red.one, red.zero)
-    redBatchInc(red.two, red.one)
-    redBatchInc(red.three, red.two)
-    redBatchInc(red.four, red.three)
-    redBatchInc(red.five, red.four)
-    redBatchInc(red.six, red.five)
-    redBatchInc(red.seven, red.six)
+    redBatchInc(red.one, red.zero, red.zero)
+    redBatchInc(red.two, red.one, red.zero)
+    redBatchInc(red.three, red.two, red.zero)
+    redBatchInc(red.four, red.three, red.zero)
+    redBatchInc(red.five, red.four, red.zero)
+    redBatchInc(red.six, red.five, red.zero)
+    redBatchInc(red.seven, red.six, red.zero)
 }
 
-function redBatchInc(redCurr, redPrev) {
-	redCurr.nextIn = redCurr.nextIn - HB
-	if (redCurr.nextIn < 0) {
-		let total = redCurr.count + redCurr.echoes
-		var b = getBaseLog(12, total / 2);
-		var batchCount = Math.floor(b);
-		while (batchCount > 0) {
-			var batchSize = Math.floor(total / (2 * batchCount));
-			for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
-				if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-					if (redPrev.isZero) {
-						redPrev.nous += batchSize;
-					} else {
-						redPrev.echoes += batchSize;
-					}
-				}
-				total -= batchSize;
-			}
-			b = getBaseLog(12, total / 2);
-			batchCount = Math.floor(b);
+function redBatchInc(redCurr, redPrev, zero) {
+	redCurr.nextIn = redCurr.nextIn.minus(HB)
+	if (redCurr.nextIn.lt(0)) {
+		let total = redCurr.count.plus(redCurr.echoes)
+		var easy = total.times(redCurr.oddsNumerator).idiv(redCurr.oddsDenominator)
+		if (redPrev.depth === 0) {
+			console.log("Easy nous " + easy.toString())
+			redPrev.nous = redPrev.nous.plus(easy.times(redPrev.impetus));
+		} else {
+			console.log("Easy " + redPrev.depth + " echoes " + easy.toString())
+			redPrev.echoes = redPrev.echoes.plus(easy.times(redPrev.impetus));
 		}
-		for (eachBatch = 0; eachBatch < total; eachBatch++) {
-			if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-				if (redPrev.isZero) {
-					redPrev.nous++;
+
+		var hard = total.minus(easy.times(redCurr.oddsDenominator))
+		for (var each = Decimal(0); each.lt(hard); each = each.plus(1)) {
+			var odds = +redCurr.oddsNumerator.div(redCurr.oddsDenominator)
+			if (Math.random() < odds) {
+				zero.streak = 0
+				console.log("streak reset")
+				if (redPrev.depth === 0) {
+					console.log("Hard nous")
+					redPrev.nous = redPrev.nous.plus(redPrev.impetus);
 				} else {
-					redPrev.echoes++;
+					console.log("Hard " + redPrev.depth + " echoes")
+					redPrev.echoes = redPrev.echoes.plus(redPrev.impetus);
 				}
+			} else {
+				zero.streak += 1;
+				console.log("bad-luck streak " + zero.streak)
+			}
 		}
-		}
-		redCurr.nextIn = redCurr.nextIn + redCurr.interval
+
+		redCurr.nextIn = redCurr.nextIn.plus(redCurr.interval)
 	}
 }
 
 function heartBeat(player) {
-	player.mainCounter++;
+	player.mainCounter = player.mainCounter.plus(1);
 	incRed(player.red);
 	redraw(player)
 }
 
-function redZero() {
-	player.red.zero.nous += player.red.zero.impetus;
+function redZero(zero) {
+	zero.nous = zero.nous.plus(zero.impetus);
 }
 
 function redBuySuccessor(redSucc, zero) {
-    if(zero.nous >= redSucc.cost){
-        redSucc.count = redSucc.count + 1;
-    	zero.nous = zero.nous - redSucc.cost;
-		redSucc.cost = Math.floor(Math.pow(redSucc.cost, redSucc.power));
+    if(zero.nous.gte(redSucc.cost)) {
+        redSucc.count = redSucc.count.plus(1);
+    	zero.nous = zero.nous.minus(redSucc.cost);
+		redSucc.cost = redSucc.cost.pow(redSucc.power).toDecimalPlaces(0, Decimal.ROUND_DOWN);
 	};
 }
-
-function redOne(){
-	redBuySuccessor(player.red.one, player.red.zero)
-}    
-
-function redTwo(){
-	redBuySuccessor(player.red.two, player.red.zero)
-}    
-
-function redThree(){
-	redBuySuccessor(player.red.three, player.red.zero)
-}    
-
-function redFour(){
-	redBuySuccessor(player.red.four, player.red.zero)
-}    
-
-function redFive(){
-	redBuySuccessor(player.red.five, player.red.zero)
-}    
-
-function redSix(){
-	redBuySuccessor(player.red.six, player.red.zero)
-}    
-
-function redSeven(){
-	redBuySuccessor(player.red.seven, player.red.zero)
-}    
-
 
 function redraw(player) {
 	document.getElementById("redNous").innerHTML = player.red.zero.nous;
@@ -371,10 +350,39 @@ function drawRed(numstr, rednum, nous) {
 	document.getElementById("red" + numstr + "Cost").innerHTML = rednum.cost;
 	document.getElementById("red" + numstr + "Interval").innerHTML = rednum.interval;
 	document.getElementById("red" + numstr + "NextIn").innerHTML = rednum.nextIn;
-	if (nous >= rednum.visibleAt) {
+	if (nous.gte(rednum.visibleAt)) {
 		document.getElementById("red" + numstr + "Display").style.display = "block";
 	}
 }
+
+function buildButtons(player) {
+	document.getElementById('redZeroButton').addEventListener('click', function() {
+		redZero(player.red.zero)
+	})
+	document.getElementById('redOneButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.one, player.red.zero)
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.two, player.red.zero)
+	})
+	document.getElementById('redThreeButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.three, player.red.zero)
+	})
+	document.getElementById('redFourButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.four, player.red.zero)
+	})
+	document.getElementById('redOneButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.five, player.red.zero)
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.six, player.red.zero)
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.seven, player.red.zero)
+	})
+}
+
+var player;
 
 function main() {  // Let there be.
 	var player_obj = loadPlayer();
@@ -389,6 +397,8 @@ function main() {  // Let there be.
 		player_obj = newPlayer();
 		window.location.reload(false);
 	});
+
+	buildButtons(player_obj);
 	
 	setInterval(function() {
 		heartBeat(player_obj);
