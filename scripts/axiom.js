@@ -65,10 +65,12 @@
 import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
 import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
 
+BigNumber.config({ ALPHABET: '0123456789TE', EXPONENTIAL_AT: 5, DECIMAL_PLACES: 4 })
+
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
-const HB = 33;
+const HB = 1000/30;
 const BIXBY_CONSTANT = 12;
 const CRESSIDA_CONSTANT = 1000;
 const PHI = (1 + Math.sqrt(5))/2
@@ -149,8 +151,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 0))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 0))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 0))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 0))),
 			},
 			two: {
 				depth: 2,
@@ -163,8 +165,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 1))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 1))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 1))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 1))),
 			},
 			three: {
 				depth: 3,
@@ -177,8 +179,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 2))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 2))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 2))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 2))),
 			},
 			four: {
 				depth: 4,
@@ -191,8 +193,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 3))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 3))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 3))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 3))),
 			},
 			five: {
 				depth: 5,
@@ -205,8 +207,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 4))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 4))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 4))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 4))),
 			},
 			six: {
 				depth: 6,
@@ -219,8 +221,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 5))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 5))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 5))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 5))),
 			},
 			seven: {
 				depth: 7,
@@ -233,8 +235,8 @@ function newPlayer() {
 				count: Decimal(0),
 				echoes: Decimal(0),
 				impetus: Decimal(1),
-				interval: Decimal(Math.floor(1000*Math.pow(PHI, 6))),
-				nextIn: Decimal(Math.floor(1000*Math.pow(PHI, 6))),
+				interval: Decimal(Math.floor(864*Math.pow(PHI, 6))),
+				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 6))),
 			}
 		}
 	}
@@ -331,7 +333,7 @@ function redBuySuccessor(redSucc, zero) {
 }
 
 function redraw(player) {
-	document.getElementById("redNous").innerHTML = player.red.zero.nous;
+	document.getElementById("redNous").innerHTML = dozenal(player.red.zero.nous);
 	drawRed("One", player.red.one, player.red.zero.nous)
 	drawRed("Two", player.red.two, player.red.zero.nous)
 	drawRed("Three", player.red.three, player.red.zero.nous)
@@ -342,17 +344,22 @@ function redraw(player) {
 }
 
 function drawRed(numstr, rednum, nous) {
-	document.getElementById("red" + numstr + "Count").innerHTML = rednum.count;
-	document.getElementById("red" + numstr + "Echoes").innerHTML = rednum.echoes;
-	document.getElementById("red" + numstr + "Cost").innerHTML = rednum.cost;
-	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = rednum.oddsNumerator;
-	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = rednum.oddsDenominator;
-	document.getElementById("red" + numstr + "Cost").innerHTML = rednum.cost;
-	document.getElementById("red" + numstr + "Interval").innerHTML = rednum.interval;
-	document.getElementById("red" + numstr + "NextIn").innerHTML = rednum.nextIn;
+	document.getElementById("red" + numstr + "Count").innerHTML = dozenal(rednum.count);
+	document.getElementById("red" + numstr + "Echoes").innerHTML = dozenal(rednum.echoes);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
+	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = dozenal(rednum.oddsNumerator);
+	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = dozenal(rednum.oddsDenominator);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
+	document.getElementById("red" + numstr + "Interval").innerHTML = dozenal(rednum.interval);
+	document.getElementById("red" + numstr + "NextIn").innerHTML = dozenal(rednum.nextIn);
 	if (nous.gte(rednum.visibleAt)) {
 		document.getElementById("red" + numstr + "Display").style.display = "block";
 	}
+}
+
+function dozenal(dec) {
+	var bn = BigNumber(dec.toString())
+	return bn.toString(12)
 }
 
 function buildButtons(player) {
