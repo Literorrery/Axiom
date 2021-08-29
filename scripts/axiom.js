@@ -74,7 +74,7 @@ const HB = 1000/30;
 const BIXBY_CONSTANT = 12; // Display base. Inside the code, everything's base-10 for programmer safety.
 const REN_CYCLE = 900; // 2*2*3*3*5*5, also the base pulse speed
 const CRESSIDA_LIMIT = 23; // Number of red successor layers possible; 24th successor would take more than 1.8e308 nous.
-const ROQUE_CONSTANT = Math.MAX_VALUE // Value above which successors cannot coalesce; the boundary of the physical from the metaphysical.
+const ROQUE_CONSTANT = Decimal(Math.MAX_VALUE) // Value above which successors cannot coalesce; the boundary of the real.
 const PHI = (1 + Math.sqrt(5))/2
 
 // If you need more, build them from here: https://dozenal.fandom.com/wiki/Systematic_Dozenal_Nomenclature
