@@ -408,13 +408,13 @@ function buildButtons(player) {
 	document.getElementById('redFourButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[4], player.red.succ[0])
 	})
-	document.getElementById('redOneButton').addEventListener('click', function() {
+	document.getElementById('redFiveButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[5], player.red.succ[0])
 	})
-	document.getElementById('redTwoButton').addEventListener('click', function() {
+	document.getElementById('redSixButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[6], player.red.succ[0])
 	})
-	document.getElementById('redTwoButton').addEventListener('click', function() {
+	document.getElementById('redSevenButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[7], player.red.succ[0])
 	})
 }
