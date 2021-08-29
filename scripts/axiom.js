@@ -423,6 +423,7 @@ function main() {  // Let there be.
 	var player_obj = loadPlayer();
 	loadLink.addEventListener('click', function() {
 		player_obj = loadPlayer();
+		buildButtons(player_obj);
 	});
 	saveLink.addEventListener('click', function() {
 		savePlayer(player_obj);
