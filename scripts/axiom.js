@@ -65,7 +65,7 @@
 import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
 import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
 
-BigNumber.config({ ALPHABET: '0123456789TE', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
+BigNumber.config({ ALPHABET: '0123456789DE', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
 
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
@@ -74,8 +74,9 @@ const HB = 1000/30;
 const BIXBY_CONSTANT = 12; // Display base. Inside the code, everything's base-10 for programmer safety.
 const REN_CYCLE = 900; // 2*2*3*3*5*5, also the base pulse speed
 const CRESSIDA_LIMIT = 23; // Number of red successor layers possible; 24th successor would take more than 1.8e308 nous.
-const ROQUE_CONSTANT = Decimal(Math.MAX_VALUE) // Value above which successors cannot coalesce; the boundary of the real.
-const PHI = (1 + Math.sqrt(5))/2
+const ROQUE_CONSTANT = Decimal(Number.MAX_VALUE) // Value above which successors cannot coalesce; the boundary of the real.
+const PHI = (1 + Math.sqrt(5))/2 // The Golden Mean. This will come up a lot.
+const VERSION = "0.0.2"
 
 // If you need more, build them from here: https://dozenal.fandom.com/wiki/Systematic_Dozenal_Nomenclature
 // Bizenty, Trizenty, Quazenty, Quinzenty, Hexenty, Sebzenty, Oxenty, Enzenty, Dexenty, Levazenty, (10^1)
@@ -167,33 +168,62 @@ function lazyCaterer(num) {
 	return triangle(num)+1;
 }
 
+function buildRedZero(rawZero) {
+	return {
+		depth: rawZero.depth,
+		nous: Decimal(rawZero.nous),
+		impetus: Decimal(rawZero.impetus),
+		streak: rawZero.streak,
+		ordinal: rawZero.ordinal,
+		cardinal: rawZero.cardinal
+	}
+}
+
+function buildRedSucc(rawSucc) {
+	return {
+		depth: rawSucc.depth,
+		ordinal: ORDINALS[rawSucc.depth],
+		cardinal: CARDINALS[rawSucc.depth],
+		visibleAt: Decimal(rawSucc.visibleAt),
+		cost: Decimal(rawSucc.cost),
+		power: Decimal(rawSucc.power),
+		oddsNumerator: Decimal(rawSucc.oddsNumerator),
+		oddsDenominator: Decimal(rawSucc.oddsDenominator),
+		count: Decimal(rawSucc.count),
+		echoes: Decimal(rawSucc.echoes),
+		impetus: Decimal(rawSucc.impetus),
+		interval: Decimal(rawSucc.interval),
+		nextIn: Decimal(rawSucc.nextIn),
+	}
+}
+
 function newPlayer() {
 	let rs = [
-		{
+		buildRedZero({
 			depth: 0,
-			nous: Decimal(0),
-			impetus: Decimal(1),
+			nous: 0,
+			impetus: 1,
 			streak: 0,
-			ordinal: "Zero",
-			cardinal: "Zeroth",
-		}
+			ordinal: ORDINALS[0],
+			cardinal: CARDINALS[0]
+		})
 	]
 	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
-		rs.push({
+		rs.push(buildRedSucc({
 			depth: i,
 			ordinal: ORDINALS[i],
 			cardinal: CARDINALS[i],
-			visibleAt: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1))/2,
-			cost: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1)),
-			power: Decimal((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
-			oddsNumerator: Decimal(1),
-			oddsDenominator: Decimal(i+1),
-			count: Decimal(0),
-			echoes: Decimal(0),
-			impetus: Decimal(1),
-			interval: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
-			nextIn: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
-		})
+			visibleAt: (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
+			cost: BIXBY_CONSTANT**lazyCaterer(i-1),
+			power: ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
+			oddsNumerator: 1,
+			oddsDenominator: i+1,
+			count: 0,
+			echoes: 0,
+			impetus: 1,
+			interval: Math.floor(REN_CYCLE*Math.pow(PHI, i-1)),
+			nextIn: Math.floor(REN_CYCLE*Math.pow(PHI, i-1)),
+		}))
 	}
 	return {
 		version: "0.0.1",
@@ -207,10 +237,51 @@ function newPlayer() {
 
 //---
 
+function loadRed(rawRed) {
+	let rs = [
+		buildRedZero({
+			depth: rawRed.succ[0].depth,
+			nous: rawRed.succ[0].nous,
+			impetus: rawRed.succ[0].impetus,
+			streak: rawRed.succ[0].streak,
+			ordinal: ORDINALS[0],
+			cardinal: CARDINALS[0]
+		})
+	]
+	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
+		rs.push(buildRedSucc({
+			depth: rawRed.succ[i].depth,
+			ordinal: ORDINALS[i],
+			cardinal: CARDINALS[i],
+			visibleAt: rawRed.succ[i].visibleAt,
+			cost: rawRed.succ[i].cost,
+			power: rawRed.succ[i].power,
+			oddsNumerator: rawRed.succ[i].oddsNumerator,
+			oddsDenominator: rawRed.succ[i].oddsDenominator,
+			count: rawRed.succ[i].count,
+			echoes: rawRed.succ[i].echoes,
+			impetus: rawRed.succ[i].impetus,
+			interval: rawRed.succ[i].interval,
+			nextIn: rawRed.succ[i].nextIn,
+		}))
+	}
+	return {
+		succ: rs,
+	}
+}
+
 function loadPlayer() {
 	let player;
 	if (localStorage.getItem("axiomPlayer")) {
-		player = JSON.parse(localStorage.getItem("axiomPlayer"));
+		let rawPlayer = JSON.parse(localStorage.getItem("axiomPlayer"));
+		player = {
+			oldVersion: rawPlayer.version,
+			version: VERSION,
+			jacket: rawPlayer.jacket,
+			mainCounter: Decimal(rawPlayer.mainCounter),
+			red: loadRed(rawPlayer.red)
+		}
+
 		console.log("Loading: %o", player);
 	} else {
 		player = newPlayer();
@@ -347,8 +418,6 @@ function buildButtons(player) {
 		redBuySuccessor(player.red.succ[7], player.red.succ[0])
 	})
 }
-
-var player;
 
 function main() {  // Let there be.
 	var player_obj = loadPlayer();
