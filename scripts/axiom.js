@@ -62,48 +62,86 @@
  * -- Zero
  */
 
+import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
+import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
+
+BigNumber.config({ ALPHABET: '0123456789TE', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
+
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
-const HB = 33;
-const BIXBY_CONSTANT = 12;
-const CRESSIDA_CONSTANT = 1000;
+const HB = 1000/30;
+const BIXBY_CONSTANT = 12; // Display base. Inside the code, everything's base-10 for programmer safety.
+const REN_CYCLE = 900; // 2*2*3*3*5*5, also the base pulse speed
+const CRESSIDA_LIMIT = 23; // Number of red successor layers possible; 24th successor would take more than 1.8e308 nous.
+const ROQUE_CONSTANT = Decimal(Math.MAX_VALUE) // Value above which successors cannot coalesce; the boundary of the real.
 const PHI = (1 + Math.sqrt(5))/2
 
-const CARDINALS = [
-		"First",
-		"Second",
-		"Third",
-		"Fourth",
-		"Fifth",
-		"Sixth",
-		"Seventh",
-		"Eighth",
-		"Ninth",
-		"Tenth",
-		"Eleventh",
-		"Twelfth",
-		"Thirteenth",
-		"Fourteenth",
-		"Fifteenth",
-		"Sixteenth",
-		"Seventeenth",
-		"Eighteenth",
-		"Nineteenth",
-		"Twentieth",
-		"Twenty-First",
-		"Twenty-Second",
-		"Twenty-Third",
-		"Twenty-Fourth",
-		"Twenty-Fifth",
-		"Twenty-Sixth",
-		"Twenty-Seventh",
-		"Twenty-Eighth"
+// If you need more, build them from here: https://dozenal.fandom.com/wiki/Systematic_Dozenal_Nomenclature
+// Bizenty, Trizenty, Quazenty, Quinzenty, Hexenty, Sebzenty, Oxenty, Enzenty, Dexenty, Levazenty, (10^1)
+// one to lev Gross (10^2)
+// zen to Levazenty-lev Gross (10^3)
+// one to lev Myriad (10^4)
+// zen to lavezenty-lev myriad (10^5)
+// one to lev Gross myriad (10^6)
+// zen to lavezenty-lev gross myriad (10^7)
+// one to lev myllion (10^8)
+
+const ORDINALS = [
+	"Zero",
+	"One",
+	"Two",
+	"Three",
+	"Four",
+	"Five",
+	"Six",
+	"Seven",
+	"Eight",
+	"Nine",
+	"Dex",
+	"Lev",
+	"Zen",
+	"Unzeen",
+	"Bizeen",
+	"Trizeen",
+	"Quazeen",
+	"Quinzeen",
+	"Hexeen",
+	"Sebzeen",
+	"Oxeen",
+	"Ennazeen",
+	"Dexeen",
+	"Levazeen",
+	"Bizenty",
 ];
 
-function order(n) {
-	return CARDINALS[n] + "-Order";
-}
+const CARDINALS = [
+	"Zeroth",
+	"First",
+	"Second",
+	"Third",
+	"Fourth",
+	"Fifth",
+	"Sixth",
+	"Seventh",
+	"Eighth",
+	"Ninth",
+	"Dexth",
+	"Lefth",
+	"Zenth",
+	"Unzeenth",
+	"Bizeenth",
+	"Trizeenth",
+	"Quazeenth",
+	"Quinzeenth",
+	"Hexeenth",
+	"Sebzeenth",
+	"Oxeenth",
+	"Ennazeenth",
+	"Dexeenth",
+	"Levazeenth",
+	"Bizentieth",
+];
 
 function getBaseLog(x, y) {
 	return Math.log(y) / Math.log(x);
@@ -119,7 +157,7 @@ function genCantorDim(n) {
 
 function triangle(num) {
 	var i = 0;
-	for (j = 1; j <= num; j++) {
+	for (var j = 1; j <= num; j++) {
 		i = i + j;
 	}
 	return i;
@@ -130,51 +168,39 @@ function lazyCaterer(num) {
 }
 
 function newPlayer() {
+	let rs = [
+		{
+			depth: 0,
+			nous: Decimal(0),
+			impetus: Decimal(1),
+			streak: 0,
+			ordinal: "Zero",
+			cardinal: "Zeroth",
+		}
+	]
+	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
+		rs.push({
+			depth: i,
+			ordinal: ORDINALS[i],
+			cardinal: CARDINALS[i],
+			visibleAt: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1))/2,
+			cost: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1)),
+			power: Decimal((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
+			oddsNumerator: Decimal(1),
+			oddsDenominator: Decimal(i+1),
+			count: Decimal(0),
+			echoes: Decimal(0),
+			impetus: Decimal(1),
+			interval: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
+			nextIn: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
+		})
+	}
 	return {
 		version: "0.0.1",
 		jacket: "red",
-		mainCounter: 0,
+		mainCounter: Decimal(0),
 		red: {
-			zero: {
-				nous: 0,
-				impetus: 1,
-			},
-			one: {
-				visibleAt: (12**1)/2,
-				cost: 12**1,
-				power: (13.0*(12.0**0)+0)/(12.0**1),
-				oddsNumerator: 1,
-				oddsDenominator: 1,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: 1000,
-				nextIn: 1000,
-			},
-			two: {
-				visibleAt: (12**2)/2,
-				cost: 12**2,
-				power: (13.0*(12.0**1)+(12.0**0))/(12.0**2),
-				oddsNumerator: 1,
-				oddsDenominator: 2,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*PHI),
-				nextIn: Math.floor(1000*PHI),
-			},
-			three: {
-				visibleAt: (12**3)/2,
-				cost: 12**3,
-				power: (13.0*(12.0**2)+(12.0**1))/(12.0**3),
-				oddsNumerator: 1,
-				oddsDenominator: 3,
-				count: 0,
-				echoes: 0,
-				impetus: 1,
-				interval: Math.floor(1000*PHI*PHI),
-				nextIn: Math.floor(1000*PHI*PHI),
-			}
+			succ: rs,
 		}
 	}
 }
@@ -182,6 +208,7 @@ function newPlayer() {
 //---
 
 function loadPlayer() {
+	let player;
 	if (localStorage.getItem("axiomPlayer")) {
 		player = JSON.parse(localStorage.getItem("axiomPlayer"));
 		console.log("Loading: %o", player);
@@ -195,7 +222,7 @@ function loadPlayer() {
 
 function savePlayer(player) {
 	var save = player;
-	localStorage.setItem("axiomPlayer", JSON.stringify(player));
+	localStorage.setItem("axiomPlayer", JSON.stringify(save));
 	console.log("Saving.");
 }
 
@@ -205,102 +232,123 @@ function resetPlayer() {
 }
 
 function incRed(red) {
-    let one = red.one
-	one.nextIn = one.nextIn - HB
-	if (one.nextIn < 0) {
-		let oneTotal = one.count + one.echoes
-		red.zero.nous = red.zero.nous + (oneTotal * one.impetus)
-		one.nextIn = one.nextIn + one.interval
+	for (var i = 0; i < (red.succ.length-1); i++) {
+		redBatchInc(red.succ[i+1], red.succ[i], red.succ[0])
 	}
-
-    redBatchInc(red.two, red.one)
-    redBatchInc(red.three, red.two)
 }
 
-function redBatchInc(redCurr, redPrev) {
-	redCurr.nextIn = redCurr.nextIn - HB
-	if (redCurr.nextIn < 0) {
-		let total = redCurr.count + redCurr.echoes
-		var b = getBaseLog(12, total / 2);
-		var batchCount = Math.floor(b);
-		while (batchCount > 0) {
-			var batchSize = Math.floor(total / (2 * batchCount));
-			for (var eachBatch = 0; eachBatch < batchCount; eachBatch++) {
-				if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-					redPrev.echoes += batchSize;
+function redBatchInc(redCurr, redPrev, zero) {
+	redCurr.nextIn = redCurr.nextIn.minus(HB)
+	if (redCurr.nextIn.lt(0)) {
+		let total = redCurr.count.plus(redCurr.echoes)
+		var easy = total.times(redCurr.oddsNumerator).idiv(redCurr.oddsDenominator)
+		if (redPrev.depth === 0) {
+			console.log("Easy nous " + easy.toString())
+			redPrev.nous = redPrev.nous.plus(easy.times(redPrev.impetus));
+		} else {
+			console.log("Easy " + redPrev.depth + " echoes " + easy.toString())
+			redPrev.echoes = redPrev.echoes.plus(easy.times(redPrev.impetus));
+		}
+
+		var hard = total.minus(easy.times(redCurr.oddsDenominator))
+		for (var each = Decimal(0); each.lt(hard); each = each.plus(1)) {
+			var odds = +redCurr.oddsNumerator.div(redCurr.oddsDenominator)
+			if (Math.random() < odds) {
+				zero.streak = 0
+				console.log("streak reset")
+				if (redPrev.depth === 0) {
+					console.log("Hard nous")
+					redPrev.nous = redPrev.nous.plus(redPrev.impetus);
+				} else {
+					console.log("Hard " + redPrev.depth + " echoes")
+					redPrev.echoes = redPrev.echoes.plus(redPrev.impetus);
 				}
-				total -= batchSize;
-			}
-			b = getBaseLog(12, total / 2);
-			batchCount = Math.floor(b);
-		}
-		for (eachBatch = 0; eachBatch < total; eachBatch++) {
-			if (Math.random() < ((redCurr.oddsNumerator * 1.0) / redCurr.oddsDenominator)) {
-				redPrev.echoes++;
+			} else {
+				zero.streak += 1;
+				console.log("bad-luck streak " + zero.streak)
 			}
 		}
-		redCurr.nextIn = redCurr.nextIn + redCurr.interval
+
+		redCurr.nextIn = redCurr.nextIn.plus(redCurr.interval)
 	}
 }
 
 function heartBeat(player) {
-	player.mainCounter++;
+	player.mainCounter = player.mainCounter.plus(1);
 	incRed(player.red);
 	redraw(player)
 }
 
-function redZero() {
-	player.red.zero.nous += player.red.zero.impetus;
+function redZero(zero) {
+	zero.nous = zero.nous.plus(zero.impetus);
 }
 
-function redBuySuccessor(redSucc, nous) {
-    if(nous >= redSucc.cost){
-        redSucc.count = redSucc.count + 1;
-    	nous = nous - redSucc.cost;
-		redSucc.cost = Math.floor(Math.pow(redSucc.cost, redSucc.power));
+function redBuySuccessor(redSucc, zero) {
+    if(zero.nous.gte(redSucc.cost)) {
+        redSucc.count = redSucc.count.plus(1);
+    	zero.nous = zero.nous.minus(redSucc.cost);
+		redSucc.cost = redSucc.cost.pow(redSucc.power).toDecimalPlaces(0, Decimal.ROUND_DOWN);
 	};
 }
 
-function redOne(){
-	redBuySuccessor(player.red.one, player.red.zero.nous)
-}    
-
-function redTwo(){
-	redBuySuccessor(player.red.two, player.red.zero.nous)
-}    
-
-function redThree(){
-	redBuySuccessor(player.red.three, player.red.zero.nous)
-}    
-
 function redraw(player) {
-	document.getElementById("redNous").innerHTML = player.red.zero.nous;
+	document.getElementById("redNous").innerHTML = dozenal(player.red.succ[0].nous);
+	drawRed("One", player.red.succ[1], player.red.succ[0].nous)
+	drawRed("Two", player.red.succ[2], player.red.succ[0].nous)
+	drawRed("Three", player.red.succ[3], player.red.succ[0].nous)
+	drawRed("Four", player.red.succ[4], player.red.succ[0].nous)
+	drawRed("Five", player.red.succ[5], player.red.succ[0].nous)
+	drawRed("Six", player.red.succ[6], player.red.succ[0].nous)
+	drawRed("Seven", player.red.succ[7], player.red.succ[0].nous)
+}
 
-	document.getElementById("redOneCount").innerHTML = player.red.one.count;
-	document.getElementById("redOneEchoes").innerHTML = player.red.one.echoes;
-	document.getElementById("redOneCost").innerHTML = player.red.one.cost;
-	document.getElementById("redOneInterval").innerHTML = player.red.one.nextIn;
-	if (player.red.zero.nous >= player.red.one.visibleAt) {
-		document.getElementById("redOneDisplay").style.display = "block";
-	}
-
-	document.getElementById("redTwoCount").innerHTML = player.red.two.count;
-	document.getElementById("redTwoEchoes").innerHTML = player.red.two.echoes;
-	document.getElementById("redTwoCost").innerHTML = player.red.two.cost;
-	document.getElementById("redTwoInterval").innerHTML = player.red.two.nextIn;
-	if (player.red.zero.nous >= player.red.two.visibleAt) {
-		document.getElementById("redTwoDisplay").style.display = "block";
-	}
-
-	document.getElementById("redThreeCount").innerHTML = player.red.three.count;
-	document.getElementById("redThreeEchoes").innerHTML = player.red.three.echoes;
-	document.getElementById("redThreeCost").innerHTML = player.red.three.cost;
-	document.getElementById("redThreeInterval").innerHTML = player.red.three.nextIn;
-	if (player.red.zero.nous >= player.red.three.visibleAt) {
-		document.getElementById("redThreeDisplay").style.display = "block";
+function drawRed(numstr, rednum, nous) {
+	document.getElementById("red" + numstr + "Count").innerHTML = dozenal(rednum.count);
+	document.getElementById("red" + numstr + "Echoes").innerHTML = dozenal(rednum.echoes);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
+	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = dozenal(rednum.oddsNumerator);
+	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = dozenal(rednum.oddsDenominator);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
+	document.getElementById("red" + numstr + "Interval").innerHTML = dozenal(rednum.interval);
+	document.getElementById("red" + numstr + "NextIn").innerHTML = dozenal(rednum.nextIn);
+	if (nous.gte(rednum.visibleAt)) {
+		document.getElementById("red" + numstr + "Display").style.display = "block";
 	}
 }
 
+function dozenal(dec) {
+	var bn = BigNumber(dec.toString())
+	return bn.toString(12)
+}
+
+function buildButtons(player) {
+	document.getElementById('redZeroButton').addEventListener('click', function() {
+		redZero(player.red.succ[0])
+	})
+	document.getElementById('redOneButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[1], player.red.succ[0])
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[2], player.red.succ[0])
+	})
+	document.getElementById('redThreeButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[3], player.red.succ[0])
+	})
+	document.getElementById('redFourButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[4], player.red.succ[0])
+	})
+	document.getElementById('redOneButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[5], player.red.succ[0])
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[6], player.red.succ[0])
+	})
+	document.getElementById('redTwoButton').addEventListener('click', function() {
+		redBuySuccessor(player.red.succ[7], player.red.succ[0])
+	})
+}
+
+var player;
 
 function main() {  // Let there be.
 	var player_obj = loadPlayer();
@@ -313,8 +361,10 @@ function main() {  // Let there be.
 	resetLink.addEventListener('click', function() {
 		resetPlayer();
 		player_obj = newPlayer();
-		window.location.reload(false);
+		window.location.reload();
 	});
+
+	buildButtons(player_obj);
 	
 	setInterval(function() {
 		heartBeat(player_obj);

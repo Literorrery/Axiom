@@ -4,3 +4,7 @@ error.log
 
 # VIM
 *.swp
+
+# JS
+node_modules/
+
