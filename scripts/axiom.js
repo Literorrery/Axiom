@@ -65,45 +65,83 @@
 import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
 import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
 
-BigNumber.config({ ALPHABET: '0123456789TE', EXPONENTIAL_AT: 5, DECIMAL_PLACES: 4 })
+BigNumber.config({ ALPHABET: '0123456789TE', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
 
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
 const resetLink = document.querySelector('.resetLink');
 const HB = 1000/30;
-const BIXBY_CONSTANT = 12;
-const CRESSIDA_CONSTANT = 1000;
+const BIXBY_CONSTANT = 12; // Display base. Inside the code, everything's base-10 for programmer safety.
+const REN_CYCLE = 900; // 2*2*3*3*5*5, also the base pulse speed
+const CRESSIDA_LIMIT = 23; // Number of red successor layers possible; 24th successor would take more than 1.8e308 nous.
+const ROQUE_CONSTANT = Math.MAX_VALUE // Value above which successors cannot coalesce; the boundary of the physical from the metaphysical.
 const PHI = (1 + Math.sqrt(5))/2
 
-const CARDINALS = [
-		"First",
-		"Second",
-		"Third",
-		"Fourth",
-		"Fifth",
-		"Sixth",
-		"Seventh",
-		"Eighth",
-		"Ninth",
-		"Tenth",
-		"Eleventh",
-		"Twelfth",
-		"Thirteenth",
-		"Fourteenth",
-		"Fifteenth",
-		"Sixteenth",
-		"Seventeenth",
-		"Eighteenth",
-		"Nineteenth",
-		"Twentieth",
-		"Twenty-First",
-		"Twenty-Second",
-		"Twenty-Third",
+// If you need more, build them from here: https://dozenal.fandom.com/wiki/Systematic_Dozenal_Nomenclature
+// Bizenty, Trizenty, Quazenty, Quinzenty, Hexenty, Sebzenty, Oxenty, Enzenty, Dexenty, Levazenty, (10^1)
+// one to lev Gross (10^2)
+// zen to Levazenty-lev Gross (10^3)
+// one to lev Myriad (10^4)
+// zen to lavezenty-lev myriad (10^5)
+// one to lev Gross myriad (10^6)
+// zen to lavezenty-lev gross myriad (10^7)
+// one to lev myllion (10^8)
+
+const ORDINALS = [
+	"Zero",
+	"One",
+	"Two",
+	"Three",
+	"Four",
+	"Five",
+	"Six",
+	"Seven",
+	"Eight",
+	"Nine",
+	"Dex",
+	"Lev",
+	"Zen",
+	"Unzeen",
+	"Bizeen",
+	"Trizeen",
+	"Quazeen",
+	"Quinzeen",
+	"Hexeen",
+	"Sebzeen",
+	"Oxeen",
+	"Ennazeen",
+	"Dexeen",
+	"Levazeen",
+	"Bizenty",
 ];
 
-function order(n) {
-	return CARDINALS[n] + "-Order";
-}
+const CARDINALS = [
+	"Zeroth",
+	"First",
+	"Second",
+	"Third",
+	"Fourth",
+	"Fifth",
+	"Sixth",
+	"Seventh",
+	"Eighth",
+	"Ninth",
+	"Dexth",
+	"Lefth",
+	"Zenth",
+	"Unzeenth",
+	"Bizeenth",
+	"Trizeenth",
+	"Quazeenth",
+	"Quinzeenth",
+	"Hexeenth",
+	"Sebzeenth",
+	"Oxeenth",
+	"Ennazeenth",
+	"Dexeenth",
+	"Levazeenth",
+	"Bizentieth",
+];
 
 function getBaseLog(x, y) {
 	return Math.log(y) / Math.log(x);
@@ -119,7 +157,7 @@ function genCantorDim(n) {
 
 function triangle(num) {
 	var i = 0;
-	for (j = 1; j <= num; j++) {
+	for (var j = 1; j <= num; j++) {
 		i = i + j;
 	}
 	return i;
@@ -130,114 +168,39 @@ function lazyCaterer(num) {
 }
 
 function newPlayer() {
+	let rs = [
+		{
+			depth: 0,
+			nous: Decimal(0),
+			impetus: Decimal(1),
+			streak: 0,
+			ordinal: "Zero",
+			cardinal: "Zeroth",
+		}
+	]
+	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
+		rs.push({
+			depth: i,
+			ordinal: ORDINALS[i],
+			cardinal: CARDINALS[i],
+			visibleAt: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1))/2,
+			cost: Decimal(BIXBY_CONSTANT**lazyCaterer(i-1)),
+			power: Decimal((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
+			oddsNumerator: Decimal(1),
+			oddsDenominator: Decimal(i+1),
+			count: Decimal(0),
+			echoes: Decimal(0),
+			impetus: Decimal(1),
+			interval: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
+			nextIn: Decimal(Math.floor(REN_CYCLE*Math.pow(PHI, i-1))),
+		})
+	}
 	return {
 		version: "0.0.1",
 		jacket: "red",
 		mainCounter: Decimal(0),
 		red: {
-			zero: {
-				depth: 0,
-				nous: Decimal(0),
-				impetus: Decimal(1),
-				streak: 0,
-			},
-			one: {
-				depth: 1,
-				visibleAt: Decimal(12**1)/2,
-				cost: Decimal(12**1),
-				power: Decimal(13.0*(12.0**0)+0)/(12.0**1),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(2),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 0))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 0))),
-			},
-			two: {
-				depth: 2,
-				isZero: false,
-				visibleAt: Decimal((12**2)/2),
-				cost: Decimal(12**2),
-				power: Decimal(13.0*(12.0**1)+(12.0**0))/(12.0**2),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(3),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 1))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 1))),
-			},
-			three: {
-				depth: 3,
-				isZero: false,
-				visibleAt: Decimal((12**3)/2),
-				cost: Decimal(12**3),
-				power: Decimal((13.0*(12.0**2)+(12.0**1))/(12.0**3)),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(4),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 2))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 2))),
-			},
-			four: {
-				depth: 4,
-				isZero: false,
-				visibleAt: Decimal((12**4)/2),
-				cost: Decimal(12**4),
-				power: Decimal((13.0*(12.0**3)+(12.0**2))/(12.0**4)),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(5),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 3))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 3))),
-			},
-			five: {
-				depth: 5,
-				isZero: false,
-				visibleAt: Decimal((12**5)/2),
-				cost: Decimal(12**5),
-				power: Decimal((13.0*(12.0**4)+(12.0**3))/(12.0**5)),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(6),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 4))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 4))),
-			},
-			six: {
-				depth: 6,
-				isZero: false,
-				visibleAt: Decimal((12**6)/2),
-				cost: Decimal(12**6),
-				power: Decimal((13.0*(12.0**5)+(12.0**4))/(12.0**6)),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(7),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 5))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 5))),
-			},
-			seven: {
-				depth: 7,
-				isZero: false,
-				visibleAt: Decimal((12**7)/2),
-				cost: Decimal(12**7),
-				power: Decimal((13.0*(12.0**6)+(12.0**5))/(12.0**7)),
-				oddsNumerator: Decimal(1),
-				oddsDenominator: Decimal(8),
-				count: Decimal(0),
-				echoes: Decimal(0),
-				impetus: Decimal(1),
-				interval: Decimal(Math.floor(864*Math.pow(PHI, 6))),
-				nextIn: Decimal(Math.floor(864*Math.pow(PHI, 6))),
-			}
+			succ: rs,
 		}
 	}
 }
@@ -269,13 +232,9 @@ function resetPlayer() {
 }
 
 function incRed(red) {
-    redBatchInc(red.one, red.zero, red.zero)
-    redBatchInc(red.two, red.one, red.zero)
-    redBatchInc(red.three, red.two, red.zero)
-    redBatchInc(red.four, red.three, red.zero)
-    redBatchInc(red.five, red.four, red.zero)
-    redBatchInc(red.six, red.five, red.zero)
-    redBatchInc(red.seven, red.six, red.zero)
+	for (var i = 0; i < (red.succ.length-1); i++) {
+		redBatchInc(red.succ[i+1], red.succ[i], red.succ[0])
+	}
 }
 
 function redBatchInc(redCurr, redPrev, zero) {
@@ -333,14 +292,14 @@ function redBuySuccessor(redSucc, zero) {
 }
 
 function redraw(player) {
-	document.getElementById("redNous").innerHTML = dozenal(player.red.zero.nous);
-	drawRed("One", player.red.one, player.red.zero.nous)
-	drawRed("Two", player.red.two, player.red.zero.nous)
-	drawRed("Three", player.red.three, player.red.zero.nous)
-	drawRed("Four", player.red.four, player.red.zero.nous)
-	drawRed("Five", player.red.five, player.red.zero.nous)
-	drawRed("Six", player.red.six, player.red.zero.nous)
-	drawRed("Seven", player.red.seven, player.red.zero.nous)
+	document.getElementById("redNous").innerHTML = dozenal(player.red.succ[0].nous);
+	drawRed("One", player.red.succ[1], player.red.succ[0].nous)
+	drawRed("Two", player.red.succ[2], player.red.succ[0].nous)
+	drawRed("Three", player.red.succ[3], player.red.succ[0].nous)
+	drawRed("Four", player.red.succ[4], player.red.succ[0].nous)
+	drawRed("Five", player.red.succ[5], player.red.succ[0].nous)
+	drawRed("Six", player.red.succ[6], player.red.succ[0].nous)
+	drawRed("Seven", player.red.succ[7], player.red.succ[0].nous)
 }
 
 function drawRed(numstr, rednum, nous) {
@@ -364,28 +323,28 @@ function dozenal(dec) {
 
 function buildButtons(player) {
 	document.getElementById('redZeroButton').addEventListener('click', function() {
-		redZero(player.red.zero)
+		redZero(player.red.succ[0])
 	})
 	document.getElementById('redOneButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.one, player.red.zero)
+		redBuySuccessor(player.red.succ[1], player.red.succ[0])
 	})
 	document.getElementById('redTwoButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.two, player.red.zero)
+		redBuySuccessor(player.red.succ[2], player.red.succ[0])
 	})
 	document.getElementById('redThreeButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.three, player.red.zero)
+		redBuySuccessor(player.red.succ[3], player.red.succ[0])
 	})
 	document.getElementById('redFourButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.four, player.red.zero)
+		redBuySuccessor(player.red.succ[4], player.red.succ[0])
 	})
 	document.getElementById('redOneButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.five, player.red.zero)
+		redBuySuccessor(player.red.succ[5], player.red.succ[0])
 	})
 	document.getElementById('redTwoButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.six, player.red.zero)
+		redBuySuccessor(player.red.succ[6], player.red.succ[0])
 	})
 	document.getElementById('redTwoButton').addEventListener('click', function() {
-		redBuySuccessor(player.red.seven, player.red.zero)
+		redBuySuccessor(player.red.succ[7], player.red.succ[0])
 	})
 }
 
@@ -402,7 +361,7 @@ function main() {  // Let there be.
 	resetLink.addEventListener('click', function() {
 		resetPlayer();
 		player_obj = newPlayer();
-		window.location.reload(false);
+		window.location.reload();
 	});
 
 	buildButtons(player_obj);
