@@ -157,11 +157,7 @@ function genCantorDim(n) {
 }
 
 function triangle(num) {
-	var i = 0;
-	for (var j = 1; j <= num; j++) {
-		i = i + j;
-	}
-	return i;
+	return ((num + 1) * num) / 2;
 }
 
 function lazyCaterer(num) {
