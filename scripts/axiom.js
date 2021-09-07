@@ -89,59 +89,59 @@ const VERSION = "0.0.2"
 // one to lev myllion (10^8)
 
 const ORDINALS = [
-	"Zero",
-	"One",
-	"Two",
-	"Three",
-	"Four",
-	"Five",
-	"Six",
-	"Seven",
-	"Eight",
-	"Nine",
+	"Cero",
+	"En",
+	"Dey",
+	"Tri",
+	"Tess",
+	"Ped",
+	"Hex",
+	"Seb",
+	"Ox",
+	"Nea",
 	"Dex",
 	"Lev",
-	"Zen",
-	"Unzeen",
-	"Bizeen",
+	"Encia",
+	"Enzeen",
+	"Deyzeen",
 	"Trizeen",
-	"Quazeen",
-	"Quinzeen",
+	"Tesseen",
+	"Pedzeen",
 	"Hexeen",
 	"Sebzeen",
 	"Oxeen",
-	"Ennazeen",
+	"Neazeen",
 	"Dexeen",
 	"Levazeen",
-	"Bizenty",
+	"Deyzenty",
 ];
 
 const CARDINALS = [
-	"Zeroth",
-	"First",
-	"Second",
-	"Third",
-	"Fourth",
-	"Fifth",
-	"Sixth",
-	"Seventh",
-	"Eighth",
-	"Ninth",
-	"Dexth",
-	"Lefth",
-	"Zenth",
-	"Unzeenth",
-	"Bizeenth",
+	"Ceroth",
+	"Ennest",
+	"Deyeth",
+	"Tirth",
+	"Tesseth",
+	"Pedeth",
+	"Hexeth",
+	"Sebeth",
+	"Oxeth",
+	"Neath",
+	"Dexeth",
+	"Lefeth",
+	"Zeneth",
+	"Enzeenth",
+	"Deyzeenth",
 	"Trizeenth",
-	"Quazeenth",
-	"Quinzeenth",
+	"Tesseenth",
+	"Pedzeenth",
 	"Hexeenth",
 	"Sebzeenth",
 	"Oxeenth",
-	"Ennazeenth",
+	"Neazeenth",
 	"Dexeenth",
 	"Levazeenth",
-	"Bizentieth",
+	"Deyzentieth",
 ];
 
 function getBaseLog(x, y) {
@@ -388,13 +388,15 @@ function drawRed(numstr, rednum, nous) {
 }
 
 function dozenal(dec) {
-	var doz = bn.toString(12)
-	if (doz.length > 6) {
-		var dozparts = [...doz];
-		return `${doz[0]}:${doz[1]}${doz[2]}${doz[3]}${doz[4]}...∘10↑${doz.length}`
+	var rounded = dec.toDecimalPlaces(0)
+	var outstr = rounded.toString(12)
+	var size = rounded.sd(true)
+	if (size > 6) {
+		var dozparts = [...outstr];
+		return `${dozparts[0]}:${dozparts[1]}${dozparts[2]}${dozparts[3]}${dozparts[4]}...∘10↑${size}`
 	}
 
-	return doz
+	return outstr
 }
 
 function buildButtons(player) {
