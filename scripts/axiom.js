@@ -388,8 +388,13 @@ function drawRed(numstr, rednum, nous) {
 }
 
 function dozenal(dec) {
-	var bn = BigNumber(dec.toString())
-	return bn.toString(12)
+	var doz = bn.toString(12)
+	if (doz.length > 6) {
+		var dozparts = [...doz];
+		return `${doz[0]}:${doz[1]}${doz[2]}${doz[3]}${doz[4]}...∘10↑${doz.length}`
+	}
+
+	return doz
 }
 
 function buildButtons(player) {
