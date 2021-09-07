@@ -1,8 +1,113 @@
 /* styles for Axiom */
 
+/* Roy took their partner's last name: ROY G. CBVK */
+/*   R = red        */
+/*   O = orange     */
+/*   Y = yellow     */
+/*   G = green      */
+/*   C = cyan       */
+/*   B = blue       */
+/*   V = violet     */
+/*   K = grey       */
+
+
+:root {
+
+    /* 
+        schemes built using http://hclwizard.org:3000/hclwizard/
+        qualitative, hue -20 to 340, chroma 100, lumin 50, number 25
+        then cherry-picking amongst those
+    */
+
+    /* fullbrights: purely to show hue */
+    --c-full:   #7F7F7F;
+    --c-full-r: #D43B75;
+    --c-full-o: #C45613;
+    --c-full-y: #967500;
+    --c-full-g: #628400;
+    --c-full-c: #009995;
+    --c-full-b: #6469E3;
+    --c-full-v: #B640D5;
+    --c-full-k: #7F7F7F;
+
+    /* backgrounds: dark roast */
+    --c-back:   #0C0C0C;
+    --c-back-r: #270410;
+    --c-back-o: #230901;
+    --c-back-y: #181000;
+    --c-back-g: #0C1400;
+    --c-back-c: #001918;
+    --c-back-b: #0D0E2A;
+    --c-back-v: #1F0527;
+    --c-back-k: #0C0C0C;
+
+    /* button text: café au lait */
+    --c-high:   #999999;
+    --c-high-r: #C87A90;
+    --c-high-o: #C1816F;
+    --c-high-y: #A49048;
+    --c-high-g: #85994A;
+    --c-high-c: #00A2A0;
+    --c-high-b: #8A8BC7;
+    --c-high-v: #AE7FC0;
+    --c-high-k: #999999;
+
+    /* text: more like tea to be honest */
+    --c-text:   #E5E5E5;
+    --c-text-r: #F0DEE2;
+    --c-text-o: #EEDFDC;
+    --c-text-y: #E7E2D7;
+    --c-text-g: #E0E4D7;
+    --c-text-c: #D4E6E6;
+    --c-text-b: #E1E1EE;
+    --c-text-v: #E8DFEC;
+    --c-text-k: #E5E5E5;
+
+    /* button backs: espresso roast */
+    --c-bback:   #262626;
+    --c-bback-r: #451425;
+    --c-bback-o: #401B0B;
+    --c-bback-y: #302500;
+    --c-bback-g: #1F2A00;
+    --c-bback-c: #00312F;
+    --c-bback-b: #202249;
+    --c-bback-v: #3A1744;
+    --c-bback-k: #262626;
+
+    /* button borders: regular cup o' joe */
+    --c-bbord:   #4C4C4C;
+    --c-bbord-r: #6E3446;
+    --c-bbord-o: #683B2C;
+    --c-bbord-y: #544600;
+    --c-bbord-g: #3E4C00;
+    --c-bbord-c: #005452;
+    --c-bbord-b: #41436F;
+    --c-bbord-v: #5D386A;
+    --c-bbord-k: #4C4C4C;
+
+    /* button text: tea with milk */
+    --c-btext:   #FFFFFF;
+    --c-btext-r: #FFFFFF;
+    --c-btext-o: #FFFFFF;
+    --c-btext-y: #FFFFFF;
+    --c-btext-g: #FFFFFF;
+    --c-btext-c: #FFFFFF;
+    --c-btext-b: #FFFFFF;
+    --c-btext-v: #FFFFFF;
+    --c-btext-k: #FFFFFF;
+
+
+
+}
+
+
+
 html {
 	height: 100%;
+    color: var(--c-text);
+    background-color: var(--c-back);
 }
+
 .column {
 	overflow-y: scroll;
 	height: 62vh;
@@ -37,12 +142,87 @@ html {
 	clear: both;
 }
 
-/* put color variables here -EK */
-.red {}
-.orange {}
-.yellow {}
-.green {}
-.cyan {}
-.blue {}
-.violet {}
-.grey {}
+button {
+	border: 1px solid;
+}
+#jacketDisplay button {
+    width: 6em;
+}
+
+
+/* color schemes within each jacket */
+.red {
+    color: var(--c-text-r);
+    background-color: var(--c-back-r);
+}
+.orange {
+    color: var(--c-text-o);
+    background-color: var(--c-back-o);
+}
+.yellow {
+    color: var(--c-text-y);
+    background-color: var(--c-back-y);
+}
+.green {
+    color: var(--c-text-g);
+    background-color: var(--c-back-g);
+}
+.cyan {
+    color: var(--c-text-c);
+    background-color: var(--c-back-c);
+}
+.blue {
+    color: var(--c-text-b);
+    background-color: var(--c-back-b);
+}
+.violet {
+    color: var(--c-text-v);
+    background-color: var(--c-back-v);
+}
+.grey {
+    color: var(--c-text-k);
+    background-color: var(--c-back-k);
+}
+
+
+/* color schemes for each jacket's buttons */
+button.red, .red button {
+    color: var(--c-btext-r);
+    background-color: var(--c-bback-r);
+    border-color: var(--c-bbord-r);
+}
+button.orange, .orange button {
+    color: var(--c-btext-o);
+    background-color: var(--c-bback-o);
+    border-color: var(--c-bbord-o);
+}
+button.yellow, .yellow button {
+    color: var(--c-btext-y);
+    background-color: var(--c-bback-y);
+    border-color: var(--c-bbord-y);
+}
+button.green, .green button {
+    color: var(--c-btext-g);
+    background-color: var(--c-bback-g);
+    border-color: var(--c-bbord-g);
+}
+button.cyan, .cyan button {
+    color: var(--c-btext-c);
+    background-color: var(--c-bback-c);
+    border-color: var(--c-bbord-c);
+}
+button.blue, .blue button {
+    color: var(--c-btext-b);
+    background-color: var(--c-bback-b);
+    border-color: var(--c-bbord-b);
+}
+button.violet, .violet button {
+    color: var(--c-btext-v);
+    background-color: var(--c-bback-v);
+    border-color: var(--c-bbord-v);
+}
+button.grey, .grey button {
+    color: var(--c-btext-k);
+    background-color: var(--c-bback-k);
+    border-color: var(--c-bbord-k);
+}
