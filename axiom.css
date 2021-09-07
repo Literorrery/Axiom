@@ -1,0 +1,48 @@
+/* styles for Axiom */
+
+html {
+	height: 100%;
+}
+.column {
+	overflow-y: scroll;
+	height: 62vh;
+}
+
+.innerDisplay {
+	border: 1px solid;
+	width: 61.8%;
+	overflow: auto;
+	
+}
+.inactive {
+	opacity: 0.1;
+}
+
+.active {
+	opacity: 1;
+}
+
+.a {
+	width: 61.8%;
+	min-width: 123;
+	float: left;
+}
+
+.b {
+	width: 38.1%;
+	min-width: 76;
+	float: right;
+}
+.footer {
+	clear: both;
+}
+
+/* put color variables here -EK */
+.red {}
+.orange {}
+.yellow {}
+.green {}
+.cyan {}
+.blue {}
+.violet {}
+.grey {}
