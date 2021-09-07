@@ -1,0 +1,24 @@
+{
+  "name": "Axiom",
+  "version": "1.0.0",
+  "description": "A multistage incremental game.",
+  "main": "index.js",
+  "dependencies": {
+    "decimal.js": "^10.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Literorrery/Axiom.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Literorrery/Axiom/issues"
+  },
+  "homepage": "https://github.com/Literorrery/Axiom#readme"
+}

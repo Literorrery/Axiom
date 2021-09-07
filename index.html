@@ -26,33 +26,72 @@
 			<div id="redSuccessorDisplayPrimary" class="red innerDisplay">
 				<div id="redZeroDisplay">
 					<p>
-						The <button id="redZero" onClick="redZero()">Zeroth-Order Successor</button> produces
+						The <button id="redZeroButton">Zeroth-Order Successor</button> produces
 						<span id="redZeroImpetus">1</span> <em>nous</em> per click.
 					</p>
 				</div>
 				<div id="redOneDisplay" style="display:none">
 					<p>
-						<span id="redOneCount">0</span> <button id="redOne" onClick="redOne()">First-Order Successors</button> and
-						<span id="redOneEchoes">0</span> First-Order Echoes have a <span id="redOneOddsNumerator">1</span> in
-						<span id="redOneOddsDenominator">1</span> chance to produce <span id="redOneImpetus">1</span> <em>nous</em> per interval.<br/>
-						Your next First-Order Successor requires <span id="redOneCost">12</span> <em>nous</em>.<br/>
-						Next interval in <span id="redOneInterval">1000</span>ms.</br/>
+						<span id="redOneCount">0</span> <button id="redOneButton">First-Order Successors</button> and
+						<span id="redOneEchoes">0</span> First-Order Echoes have a
+						<span id="redOneOddsNumerator">1</span>-in-<span id="redOneOddsDenominator">1</span> chance to produce
+						<span id="redOneImpetus">1</span> <em>nous</em> per <span id="redOneInterval">1</span> <em>xronoi</em>.<br/>
+						Next First-Order Successor at <span id="redOneCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redOneNextIn">1</span>ms.</br/>
 				</div>
 				<div id="redTwoDisplay" style="display:none">
 					<p>
-						<span id="redTwoCount">0</span> <button id="redTwo" onClick="redTwo()">Second-Order Successors</button> and
-						<span id="redTwoEchoes">0</span> Second-Order Echoes have a <span id="redTwoOddsNumerator">1</span> in
-						<span id="redTwoOddsDenominator">2</span> chance to produce <span id="redTwoImpetus">1</span> First-Order Echoes per interval.<br/>
-						Your next First-Order Successor requires <span id="redTwoCost">144</span> <em>nous</em>.<br/>
-						Next interval in <span id="redTwoInterval">1618</span>ms.</br/>
+						<span id="redTwoCount">0</span> <button id="redTwoButton">Second-Order Successors</button> and
+						<span id="redTwoEchoes">0</span> Second-Order Echoes have a
+						<span id="redTwoOddsNumerator">1</span>-in-<span id="redTwoOddsDenominator">1</span> chance to produce
+						<span id="redTwoImpetus">1</span> First-Order Echoes per <span id="redTwoInterval">1</span> <em>xronoi</em>.<br/>
+						Next Second-Order Successor at <span id="redTwoCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redTwoNextIn">1</span>ms.</br/>
 				</div>
 				<div id="redThreeDisplay" style="display:none">
 					<p>
-						<span id="redThreeCount">0</span> <button id="redThree" onClick="redThree()">Third-Order Successors</button> and
-						<span id="redThreeEchoes">0</span> Third-Order Echoes have a <span id="redThreeOddsNumerator">1</span> in
-						<span id="redThreeOddsDenominator">3</span> chance to produce <span id="redThreeImpetus">1</span> Second-Order Echoes per interval.<br/>
-						Your next First-Order Successor requires <span id="redThreeCost">1728</span> <em>nous</em>.<br/>
-						Next interval in <span id="redThreeInterval">2618</span>ms.</br/>
+						<span id="redThreeCount">0</span> <button id="redThreeButton">Third-Order Successors</button> and
+						<span id="redThreeEchoes">0</span> Third-Order Echoes have a
+						<span id="redThreeOddsNumerator">1</span>-in-<span id="redThreeOddsDenominator">1</span> chance to produce
+						<span id="redThreeImpetus">1</span> Second-Order Echoes per	<span id="redThreeInterval">1</span> <em>xronoi</em>.<br/>
+						Next Third-Order Successor at <span id="redThreeCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redThreeNextIn">1</span>ms.</br/>
+				</div>
+				<div id="redFourDisplay" style="display:none">
+					<p>
+						<span id="redFourCount">0</span> <button id="redFourButton">Fourth-Order Successors</button> and
+						<span id="redFourEchoes">0</span> Fourth-Order Echoes have a
+						<span id="redFourOddsNumerator">1</span>-in-<span id="redFourOddsDenominator">1</span> chance to produce
+						<span id="redFourImpetus">1</span> Third-Order Echoes per <span id="redFourInterval">1</span> <em>xronoi</em>.<br/>
+						Next Fourth-Order Successor requires <span id="redFourCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redFourNextIn">1</span>ms.</br/>
+				</div>
+				<div id="redFiveDisplay" style="display:none">
+					<p>
+						<span id="redFiveCount">0</span> <button id="redFiveButton">Fifth-Order Successors</button> and
+						<span id="redFiveEchoes">0</span> Fifth-Order Echoes have a
+						<span id="redFiveOddsNumerator">1</span>-in-<span id="redFiveOddsDenominator">1</span> chance to produce
+						<span id="redFiveImpetus">1</span> Fourth-Order Echoes per <span id="redFiveInterval">1</span> <em>xronoi</em>.<br/>
+						Next Fifth-Order Successor requires <span id="redFiveCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redFiveNextIn">1</span>ms.</br/>
+				</div>
+				<div id="redSixDisplay" style="display:none">
+					<p>
+						<span id="redSixCount">0</span> <button id="redSixButton">Sixth-Order Successors</button> and
+						<span id="redSixEchoes">0</span> Sixth-Order Echoes have a
+						<span id="redSixOddsNumerator">1</span>-in-<span id="redSixOddsDenominator">1</span> chance to produce
+						<span id="redSixImpetus">1</span> Fifth-Order Echoes per <span id="redSixInterval">1</span> <em>xronoi</em>.<br/>
+						Next Sixth-Order Successor requires <span id="redSixCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redSixNextIn">1</span>ms.</br/>
+				</div>
+				<div id="redSevenDisplay" style="display:none">
+					<p>
+						<span id="redSevenCount">0</span> <button id="redSevenButton">Seventh-Order Successors</button> and
+						<span id="redSevenEchoes">0</span> Seventh-Order Echoes have a
+						<span id="redSevenOddsNumerator">1</span>-in-<span id="redSevenOddsDenominator">1</span> chance to produce
+						<span id="redSevenImpetus">1</span> Sixth-Order Echoes per <span id="redSevenInterval">1</span> <em>xronoi</em>.<br/>
+						Next Seventh-Order Successor requires <span id="redSevenCost">1</span> <em>nous</em>.<br/>
+						Next echo in <span id="redSevenNextIn">1</span>ms.</br/>
 				</div>
 			</div>
 		</div>
@@ -91,7 +130,7 @@
 		<h1>???: <span id="blueBody"></span> <em>body</em></h1>
 		<h1>???: <span id="blueHeart"></span> <em>heart</em></h1>
 		<h1>???: <span id="blueMind"></span> <em>mind</em></h1>
-		<h1>???: <span id="bluewill"></span> <em>will</em></h1>
+		<h1>???: <span id="blueWill"></span> <em>will</em></h1>
 		<h1>???: <span id="blueSpirit"></span> <em>spirit</em></h1>
 	</div>
 	<div id="violetMainDisplay" class="violet mainDisplay inactive" style="display:none">
@@ -130,6 +169,6 @@
 		}
 	}
 </script>
-<script src="scripts/axiom.js"></script>
+<script src="scripts/axiom.js" type="module"></script>
 </body>
 </html>
