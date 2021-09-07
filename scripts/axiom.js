@@ -101,7 +101,7 @@ const ORDINALS = [
 	"Nea",
 	"Dex",
 	"Lev",
-	"Zen",
+	"Encia",
 	"Enzeen",
 	"Deyzeen",
 	"Trizeen",
