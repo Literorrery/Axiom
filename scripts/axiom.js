@@ -65,7 +65,7 @@
 import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
 import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
 
-BigNumber.config({ ALPHABET: '0123456789DE', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
+BigNumber.config({ ALPHABET: '0123456789ðŁ', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
 
 const saveLink = document.querySelector('.saveLink');
 const loadLink = document.querySelector('.loadLink');
@@ -101,7 +101,7 @@ const ORDINALS = [
 	"Nea",
 	"Dex",
 	"Lev",
-	"Encia",
+	"Zen",
 	"Enzeen",
 	"Deyzeen",
 	"Trizeen",
@@ -389,7 +389,8 @@ function drawRed(numstr, rednum, nous) {
 
 function dozenal(dec) {
 	var rounded = dec.toDecimalPlaces(0)
-	var outstr = rounded.toString(12)
+	var bn = BigNumber(rounded)
+	var outstr = bn.toString(12)
 	var size = rounded.sd(true)
 	if (size > 6) {
 		var dozparts = [...outstr];
