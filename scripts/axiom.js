@@ -63,7 +63,6 @@
  */
 
 import {BigNumber} from "../node_modules/bignumber.js/bignumber.mjs";
-import {Decimal} from "../node_modules/decimal.js-light/decimal.mjs";
 
 BigNumber.config({ ALPHABET: '0123456789ðŁ', EXPONENTIAL_AT: 4, DECIMAL_PLACES: 4 })
 
@@ -74,7 +73,7 @@ const HB = 1000/30;
 const BIXBY_CONSTANT = 12; // Display base. Inside the code, everything's base-10 for programmer safety.
 const REN_CYCLE = 900; // 2*2*3*3*5*5, also the base pulse speed
 const CRESSIDA_LIMIT = 23; // Number of red successor layers possible; 24th successor would take more than 1.8e308 nous.
-const ROQUE_CONSTANT = Decimal(Number.MAX_VALUE) // Value above which successors cannot coalesce; the boundary of the real.
+const ROQUE_CONSTANT = Number.MAX_VALUE // Value above which successors cannot coalesce; the boundary of the real.
 const PHI = (1 + Math.sqrt(5))/2 // The Golden Mean. This will come up a lot.
 const VERSION = "0.0.2"
 
@@ -167,8 +166,8 @@ function lazyCaterer(num) {
 function buildRedZero(rawZero) {
 	return {
 		depth: rawZero.depth,
-		nous: Decimal(rawZero.nous),
-		impetus: Decimal(rawZero.impetus),
+		nous: rawZero.nous,
+		impetus: rawZero.impetus,
 		streak: rawZero.streak,
 		ordinal: rawZero.ordinal,
 		cardinal: rawZero.cardinal
@@ -180,16 +179,16 @@ function buildRedSucc(rawSucc) {
 		depth: rawSucc.depth,
 		ordinal: ORDINALS[rawSucc.depth],
 		cardinal: CARDINALS[rawSucc.depth],
-		visibleAt: Decimal(rawSucc.visibleAt),
-		cost: Decimal(rawSucc.cost),
-		power: Decimal(rawSucc.power),
-		oddsNumerator: Decimal(rawSucc.oddsNumerator),
-		oddsDenominator: Decimal(rawSucc.oddsDenominator),
-		count: Decimal(rawSucc.count),
-		echoes: Decimal(rawSucc.echoes),
-		impetus: Decimal(rawSucc.impetus),
-		interval: Decimal(rawSucc.interval),
-		nextIn: Decimal(rawSucc.nextIn),
+		visibleAt: rawSucc.visibleAt,
+		cost: rawSucc.cost,
+		power: rawSucc.power,
+		oddsNumerator: rawSucc.oddsNumerator,
+		oddsDenominator: rawSucc.oddsDenominator,
+		count: rawSucc.count,
+		echoes: rawSucc.echoes,
+		impetus: rawSucc.impetus,
+		interval: rawSucc.interval,
+		nextIn: rawSucc.nextIn,
 	}
 }
 
@@ -224,7 +223,7 @@ function newPlayer() {
 	return {
 		version: "0.0.1",
 		jacket: "red",
-		mainCounter: Decimal(0),
+		mainCounter: 0,
 		red: {
 			succ: rs,
 		}
@@ -241,7 +240,7 @@ function loadRed(rawRed) {
 			impetus: rawRed.succ[0].impetus,
 			streak: rawRed.succ[0].streak,
 			ordinal: ORDINALS[0],
-			cardinal: CARDINALS[0]
+			cardinal: CARDINALS[0],
 		})
 	]
 	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
@@ -274,7 +273,7 @@ function loadPlayer() {
 			oldVersion: rawPlayer.version,
 			version: VERSION,
 			jacket: rawPlayer.jacket,
-			mainCounter: Decimal(rawPlayer.mainCounter),
+			mainCounter: rawPlayer.mainCounter,
 			red: loadRed(rawPlayer.red)
 		}
 
@@ -305,30 +304,32 @@ function incRed(red) {
 }
 
 function redBatchInc(redCurr, redPrev, zero) {
-	redCurr.nextIn = redCurr.nextIn.minus(HB)
-	if (redCurr.nextIn.lt(0)) {
-		let total = redCurr.count.plus(redCurr.echoes)
-		var easy = total.times(redCurr.oddsNumerator).idiv(redCurr.oddsDenominator)
-		if (redPrev.depth === 0) {
-			console.log("Easy nous " + easy.toString())
-			redPrev.nous = redPrev.nous.plus(easy.times(redPrev.impetus));
-		} else {
-			console.log("Easy " + redPrev.depth + " echoes " + easy.toString())
-			redPrev.echoes = redPrev.echoes.plus(easy.times(redPrev.impetus));
+	redCurr.nextIn = redCurr.nextIn - HB
+	if (redCurr.nextIn < 0) {
+		let total = redCurr.count + redCurr.echoes
+		var easy = Math.floor(total * redCurr.oddsNumerator / redCurr.oddsDenominator)
+		if (easy > 0) {
+			if (redPrev.depth === 0) {
+				console.log("Easy nous " + easy)
+				redPrev.nous = redPrev.nous + (easy * redPrev.impetus);
+			} else {
+				console.log("Easy " + redPrev.depth + " echoes " + easy)
+				redPrev.echoes = redPrev.echoes + (easy * redPrev.impetus);
+			}
 		}
 
-		var hard = total.minus(easy.times(redCurr.oddsDenominator))
-		for (var each = Decimal(0); each.lt(hard); each = each.plus(1)) {
-			var odds = +redCurr.oddsNumerator.div(redCurr.oddsDenominator)
+		var hard = total - easy
+		for (var each = 0; each < hard; each++) {
+			var odds = +(redCurr.oddsNumerator / redCurr.oddsDenominator)
 			if (Math.random() < odds) {
 				zero.streak = 0
 				console.log("streak reset")
 				if (redPrev.depth === 0) {
 					console.log("Hard nous")
-					redPrev.nous = redPrev.nous.plus(redPrev.impetus);
+					redPrev.nous = redPrev.nous + redPrev.impetus;
 				} else {
 					console.log("Hard " + redPrev.depth + " echoes")
-					redPrev.echoes = redPrev.echoes.plus(redPrev.impetus);
+					redPrev.echoes = redPrev.echoes + redPrev.impetus;
 				}
 			} else {
 				zero.streak += 1;
@@ -336,25 +337,25 @@ function redBatchInc(redCurr, redPrev, zero) {
 			}
 		}
 
-		redCurr.nextIn = redCurr.nextIn.plus(redCurr.interval)
+		redCurr.nextIn = redCurr.nextIn + redCurr.interval
 	}
 }
 
 function heartBeat(player) {
-	player.mainCounter = player.mainCounter.plus(1);
+	player.mainCounter = player.mainCounter + 1;
 	incRed(player.red);
 	redraw(player)
 }
 
 function redZero(zero) {
-	zero.nous = zero.nous.plus(zero.impetus);
+	zero.nous = zero.nous + zero.impetus;
 }
 
 function redBuySuccessor(redSucc, zero) {
-    if(zero.nous.gte(redSucc.cost)) {
-        redSucc.count = redSucc.count.plus(1);
-    	zero.nous = zero.nous.minus(redSucc.cost);
-		redSucc.cost = redSucc.cost.pow(redSucc.power).toDecimalPlaces(0, Decimal.ROUND_DOWN);
+    if(zero.nous >= redSucc.cost) {
+        redSucc.count = redSucc.count + 1;
+    	zero.nous = zero.nous - redSucc.cost;
+		redSucc.cost = Math.floor(redSucc.cost ** redSucc.power);
 	};
 }
 
@@ -378,19 +379,19 @@ function drawRed(numstr, rednum, nous) {
 	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
 	document.getElementById("red" + numstr + "Interval").innerHTML = dozenal(rednum.interval);
 	document.getElementById("red" + numstr + "NextIn").innerHTML = dozenal(rednum.nextIn);
-	if (nous.gte(rednum.visibleAt)) {
+	if (nous > rednum.visibleAt) {
 		document.getElementById("red" + numstr + "Display").style.display = "block";
 	}
 }
 
 function dozenal(dec) {
-	var rounded = dec.toDecimalPlaces(0)
-	var bn = BigNumber(rounded)
-	var outstr = bn.toString(12)
-	var size = rounded.sd(true)
+	var bn = BigNumber(dec)
+	// Trim remainder
+	var outstr = (bn.toString(12).split("."))[0]
+	var size = outstr.length
 	if (size > 6) {
 		var dozparts = [...outstr];
-		return `${dozparts[0]}:${dozparts[1]}${dozparts[2]}${dozparts[3]}${dozparts[4]}...∘10↑${size}`
+		return `${dozparts[0]}:${dozparts[1]}${dozparts[2]}${dozparts[3]}${dozparts[4]}⁘∘10↑${size}`
 	}
 
 	return outstr
