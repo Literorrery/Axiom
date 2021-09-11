@@ -238,7 +238,7 @@ function newPlayer() {
 		rf.push(buildRedFocus({
 			depth: i,
 			visibleAt: (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
-			cost: BIXBY_CONSTANT**lazyCaterer(i-1),
+			cost: 3*(BIXBY_CONSTANT**lazyCaterer(i-1)),
 			power: ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
 			oddsNumerator: 1,
 			oddsDenominator: i+1,
@@ -293,7 +293,7 @@ function loadRed(rawRed) {
 		rf.push(buildRedFocus({
 			depth: rawRed.focus ? (rawRed.focus[i].depth ? rawRed.focus[i].depth : i) : 1,
 			visibleAt: rawRed.focus ? (rawRed.focus[i].visibleAt ? rawRed.focus[i].visibleAt : (BIXBY_CONSTANT**lazyCaterer(i-1))/2) : (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
-			cost: rawRed.focus ? (rawRed.focus[i].cost ? rawRed.focus[i].cost : BIXBY_CONSTANT**lazyCaterer(i-1)) : BIXBY_CONSTANT**lazyCaterer(i-1),
+			cost: rawRed.focus ? (rawRed.focus[i].cost ? rawRed.focus[i].cost : 3*(BIXBY_CONSTANT**lazyCaterer(i-1))) : 3*(BIXBY_CONSTANT**lazyCaterer(i-1)),
 			power: rawRed.focus ? (rawRed.focus[i].power ? rawRed.focus[i].power : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i)) : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
 			oddsNumerator: rawRed.focus ? (rawRed.focus[i].oddsNumerator ? rawRed.focus[i].oddsNumerator : 1) : 1,
 			oddsDenominator: rawRed.focus ? (rawRed.focus[i].oddsDenominator ? rawRed.focus[i].oddsDenominator : i+1) : i+1,
@@ -391,17 +391,24 @@ function redBuySuccessor(redSucc, zero) {
 	};
 }
 
-function redBuyFocus(redSucc, redFocus, zero) {
-    if(redSucc.count >= redFocus.cost) {
-        redFocus.count = redFocus.count + 1;
-    	redSucc.count = redSucc.count - redFocus.cost;
-		redFocus.cost = Math.floor(redFocus.cost ** redFocus.power);
-		if (redFocus.resetEchoes) {
-			redSucc.echoes = 0
+function redBuyFocus(red) {
+    if(red.succ.count >= red.focus.cost) {
+        red.focus.count = red.focus.count + 1;
+    	red.succ.count = red.succ.count - red.focus.cost;
+		red.focus.cost = Math.floor(red.focus.cost ** red.focus.power);
+		red.succ.oddsNumerator = (red.succ.oddsNumerator * red.focus.oddsDenominator) + red.focus.oddsNumerator
+		red.succ.oddsDenominator = (red.succ.oddsDenominator * red.focus.oddsDenominator)
+		if (red.focus.resetEchoes) {
+			redResetEchoes(red)
 		}
 	};
 }
 
+function redResetEchoes(red) {
+	for (var i = 1; i < CRESSIDA_LIMIT; i++) {
+		red.succ.echoes = 0;
+	}
+}
 
 function redraw(player) {
 	document.getElementById("redNous").innerHTML = dozenal(player.red.succ[0].nous);
