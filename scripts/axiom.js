@@ -192,6 +192,20 @@ function buildRedSucc(rawSucc) {
 	}
 }
 
+function buildRedFocus(rawFocus) {
+	return {
+		depth: rawFocus.depth,
+		visibleAt: rawFocus.visibleAt,
+		cost: rawFocus.cost,
+		power: rawFocus.power,
+		oddsNumerator: rawFocus.oddsNumerator,
+		oddsDenominator: rawFocus.oddsDenominator,
+		count: rawFocus.count,
+		impetus: rawFocus.impetus,
+		resetEchoes: rawFocus.resetEchoes,
+	}
+}
+
 function newPlayer() {
 	let rs = [
 		buildRedZero({
@@ -203,6 +217,8 @@ function newPlayer() {
 			cardinal: CARDINALS[0]
 		})
 	]
+	let rf = [{
+	}]
 	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
 		rs.push(buildRedSucc({
 			depth: i,
@@ -219,6 +235,17 @@ function newPlayer() {
 			interval: Math.floor(REN_CYCLE*Math.pow(PHI, i-1)),
 			nextIn: Math.floor(REN_CYCLE*Math.pow(PHI, i-1)),
 		}))
+		rf.push(buildRedFocus({
+			depth: i,
+			visibleAt: (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
+			cost: BIXBY_CONSTANT**lazyCaterer(i-1),
+			power: ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
+			oddsNumerator: 1,
+			oddsDenominator: i+1,
+			count: 0,
+			impetus: 1,
+			resetEchoes: true,
+		}))
 	}
 	return {
 		version: "0.0.1",
@@ -226,6 +253,7 @@ function newPlayer() {
 		mainCounter: 0,
 		red: {
 			succ: rs,
+			focus: rf,
 		}
 	}
 }
@@ -243,6 +271,9 @@ function loadRed(rawRed) {
 			cardinal: CARDINALS[0],
 		})
 	]
+	let rf = [{
+	}]
+
 	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
 		rs.push(buildRedSucc({
 			depth: rawRed.succ[i].depth,
@@ -259,9 +290,21 @@ function loadRed(rawRed) {
 			interval: rawRed.succ[i].interval,
 			nextIn: rawRed.succ[i].nextIn,
 		}))
+		rf.push(buildRedFocus({
+			depth: rawRed.focus ? (rawRed.focus[i].depth ? rawRed.focus[i].depth : i) : 1,
+			visibleAt: rawRed.focus ? (rawRed.focus[i].visibleAt ? rawRed.focus[i].visibleAt : (BIXBY_CONSTANT**lazyCaterer(i-1))/2) : (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
+			cost: rawRed.focus ? (rawRed.focus[i].cost ? rawRed.focus[i].cost : BIXBY_CONSTANT**lazyCaterer(i-1)) : BIXBY_CONSTANT**lazyCaterer(i-1),
+			power: rawRed.focus ? (rawRed.focus[i].power ? rawRed.focus[i].power : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i)) : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
+			oddsNumerator: rawRed.focus ? (rawRed.focus[i].oddsNumerator ? rawRed.focus[i].oddsNumerator : 1) : 1,
+			oddsDenominator: rawRed.focus ? (rawRed.focus[i].oddsDenominator ? rawRed.focus[i].oddsDenominator : i+1) : i+1,
+			count: rawRed.focus ? (rawRed.focus[i].count ? rawRed.focus[i].count : 0) : 0,
+			impetus: rawRed.focus ? (rawRed.focus[i].impetus ? rawRed.focus[i].impetus : 1) : 1,
+			resetEchoes: rawRed.focus ? (rawRed.focus[i].resetEchoes ? rawRed.focus[i].resetEchoes : true) : true,
+		}))
 	}
 	return {
 		succ: rs,
+		focus: rf,
 	}
 }
 
@@ -310,31 +353,20 @@ function redBatchInc(redCurr, redPrev, zero) {
 		var easy = Math.floor(total * redCurr.oddsNumerator / redCurr.oddsDenominator)
 		if (easy > 0) {
 			if (redPrev.depth === 0) {
-				console.log("Easy nous " + easy)
 				redPrev.nous = redPrev.nous + (easy * redPrev.impetus);
 			} else {
-				console.log("Easy " + redPrev.depth + " echoes " + easy)
 				redPrev.echoes = redPrev.echoes + (easy * redPrev.impetus);
 			}
 		}
 
 		var hard = total - easy
-		for (var each = 0; each < hard; each++) {
-			var odds = +(redCurr.oddsNumerator / redCurr.oddsDenominator)
-			if (Math.random() < odds) {
-				zero.streak = 0
-				console.log("streak reset")
-				if (redPrev.depth === 0) {
-					console.log("Hard nous")
-					redPrev.nous = redPrev.nous + redPrev.impetus;
-				} else {
-					console.log("Hard " + redPrev.depth + " echoes")
-					redPrev.echoes = redPrev.echoes + redPrev.impetus;
-				}
-			} else {
-				zero.streak += 1;
-				console.log("bad-luck streak " + zero.streak)
-			}
+		let out = Math.floor((hard + (1/(redCurr.depth+1))) * Math.random()) // This should round up some times.
+		if (redPrev.depth === 0) {
+			console.log("hard nous " + out)
+			redPrev.nous = redPrev.nous + (out * redPrev.impetus);
+		} else {
+			console.log("hard " + redCurr.depth + " echoes " + out)
+			redPrev.echoes = redPrev.echoes + (out * redPrev.impetus);
 		}
 
 		redCurr.nextIn = redCurr.nextIn + redCurr.interval
@@ -358,6 +390,18 @@ function redBuySuccessor(redSucc, zero) {
 		redSucc.cost = Math.floor(redSucc.cost ** redSucc.power);
 	};
 }
+
+function redBuyFocus(redSucc, redFocus, zero) {
+    if(redSucc.count >= redFocus.cost) {
+        redFocus.count = redFocus.count + 1;
+    	redSucc.count = redSucc.count - redFocus.cost;
+		redFocus.cost = Math.floor(redFocus.cost ** redFocus.power);
+		if (redFocus.resetEchoes) {
+			redSucc.echoes = 0
+		}
+	};
+}
+
 
 function redraw(player) {
 	document.getElementById("redNous").innerHTML = dozenal(player.red.succ[0].nous);
@@ -389,7 +433,7 @@ function dozenal(dec) {
 	// Trim remainder
 	var outstr = (bn.toString(12).split("."))[0]
 	var size = outstr.length
-	if (size > 6) {
+	if (size > 7) {
 		var dozparts = [...outstr];
 		return `${dozparts[0]}:${dozparts[1]}${dozparts[2]}${dozparts[3]}${dozparts[4]}⁘∘10↑${size}`
 	}
