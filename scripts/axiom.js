@@ -237,8 +237,8 @@ function newPlayer() {
 		}))
 		rf.push(buildRedFocus({
 			depth: i,
-			visibleAt: (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
-			cost: 3*(BIXBY_CONSTANT**lazyCaterer(i-1)),
+			visibleAt: 3*(BIXBY_CONSTANT)/2,
+			cost: 3*BIXBY_CONSTANT,
 			power: ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
 			oddsNumerator: 1,
 			oddsDenominator: i+1,
@@ -292,8 +292,8 @@ function loadRed(rawRed) {
 		}))
 		rf.push(buildRedFocus({
 			depth: rawRed.focus ? (rawRed.focus[i].depth ? rawRed.focus[i].depth : i) : 1,
-			visibleAt: rawRed.focus ? (rawRed.focus[i].visibleAt ? rawRed.focus[i].visibleAt : (BIXBY_CONSTANT**lazyCaterer(i-1))/2) : (BIXBY_CONSTANT**lazyCaterer(i-1))/2,
-			cost: rawRed.focus ? (rawRed.focus[i].cost ? rawRed.focus[i].cost : 3*(BIXBY_CONSTANT**lazyCaterer(i-1))) : 3*(BIXBY_CONSTANT**lazyCaterer(i-1)),
+			visibleAt: rawRed.focus ? (rawRed.focus[i].visibleAt ? rawRed.focus[i].visibleAt : 3*BIXBY_CONSTANT/2) : 3*BIXBY_CONSTANT/2,
+			cost: rawRed.focus ? (rawRed.focus[i].cost ? rawRed.focus[i].cost : 3*BIXBY_CONSTANT) : 3*BIXBY_CONSTANT,
 			power: rawRed.focus ? (rawRed.focus[i].power ? rawRed.focus[i].power : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i)) : ((BIXBY_CONSTANT+1)*(BIXBY_CONSTANT**(i-1))+(i===1?0:BIXBY_CONSTANT**(i-2)))/(BIXBY_CONSTANT**i),
 			oddsNumerator: rawRed.focus ? (rawRed.focus[i].oddsNumerator ? rawRed.focus[i].oddsNumerator : 1) : 1,
 			oddsDenominator: rawRed.focus ? (rawRed.focus[i].oddsDenominator ? rawRed.focus[i].oddsDenominator : i+1) : i+1,
@@ -391,48 +391,54 @@ function redBuySuccessor(redSucc, zero) {
 	};
 }
 
-function redBuyFocus(red) {
-    if(red.succ.count >= red.focus.cost) {
-        red.focus.count = red.focus.count + 1;
-    	red.succ.count = red.succ.count - red.focus.cost;
-		red.focus.cost = Math.floor(red.focus.cost ** red.focus.power);
-		red.succ.oddsNumerator = (red.succ.oddsNumerator * red.focus.oddsDenominator) + red.focus.oddsNumerator
-		red.succ.oddsDenominator = (red.succ.oddsDenominator * red.focus.oddsDenominator)
-		if (red.focus.resetEchoes) {
+function redBuyFocus(red, layer) {
+    if(red.succ[layer].count >= red.focus[layer].cost) {
+        red.focus[layer].count = red.focus[layer].count + 1;
+    	red.succ[layer].count = red.succ[layer].count - red.focus[layer].cost;
+		red.focus[layer].cost = Math.floor(red.focus[layer].cost ** red.focus[layer].power);
+		red.succ[layer].oddsNumerator = (red.succ[layer].oddsNumerator * red.focus[layer].oddsDenominator) + red.focus[layer].oddsNumerator
+		red.succ[layer].oddsDenominator = (red.succ[layer].oddsDenominator * red.focus[layer].oddsDenominator)
+		if (red.focus[layer].resetEchoes) {
 			redResetEchoes(red)
 		}
 	};
 }
 
 function redResetEchoes(red) {
-	for (var i = 1; i < CRESSIDA_LIMIT; i++) {
-		red.succ.echoes = 0;
+	for (var i = 1; i <= CRESSIDA_LIMIT; i++) {
+		red.succ[i].echoes = 0;
 	}
 }
 
 function redraw(player) {
 	document.getElementById("redNous").innerHTML = dozenal(player.red.succ[0].nous);
-	drawRed("One", player.red.succ[1], player.red.succ[0].nous)
-	drawRed("Two", player.red.succ[2], player.red.succ[0].nous)
-	drawRed("Three", player.red.succ[3], player.red.succ[0].nous)
-	drawRed("Four", player.red.succ[4], player.red.succ[0].nous)
-	drawRed("Five", player.red.succ[5], player.red.succ[0].nous)
-	drawRed("Six", player.red.succ[6], player.red.succ[0].nous)
-	drawRed("Seven", player.red.succ[7], player.red.succ[0].nous)
+	drawRed("One", player.red.succ[1], player.red.focus[1], player.red.succ[0].nous)
+	drawRed("Two", player.red.succ[2], player.red.focus[2], player.red.succ[0].nous)
+	drawRed("Three", player.red.succ[3], player.red.focus[3], player.red.succ[0].nous)
+	drawRed("Four", player.red.succ[4], player.red.focus[4], player.red.succ[0].nous)
+	drawRed("Five", player.red.succ[5], player.red.focus[5], player.red.succ[0].nous)
+	drawRed("Six", player.red.succ[6], player.red.focus[6], player.red.succ[0].nous)
+	drawRed("Seven", player.red.succ[7], player.red.focus[7], player.red.succ[0].nous)
 }
 
-function drawRed(numstr, rednum, nous) {
-	document.getElementById("red" + numstr + "Count").innerHTML = dozenal(rednum.count);
-	document.getElementById("red" + numstr + "Echoes").innerHTML = dozenal(rednum.echoes);
-	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
-	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = dozenal(rednum.oddsNumerator);
-	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = dozenal(rednum.oddsDenominator);
-	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(rednum.cost);
-	document.getElementById("red" + numstr + "Interval").innerHTML = dozenal(rednum.interval);
-	document.getElementById("red" + numstr + "NextIn").innerHTML = dozenal(rednum.nextIn);
-	if (nous > rednum.visibleAt) {
+function drawRed(numstr, redSucc, redFocus, nous) {
+	document.getElementById("red" + numstr + "Count").innerHTML = dozenal(redSucc.count);
+	document.getElementById("red" + numstr + "Echoes").innerHTML = dozenal(redSucc.echoes);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(redSucc.cost);
+	document.getElementById("red" + numstr + "OddsNumerator").innerHTML = dozenal(redSucc.oddsNumerator);
+	document.getElementById("red" + numstr + "OddsDenominator").innerHTML = dozenal(redSucc.oddsDenominator);
+	document.getElementById("red" + numstr + "Cost").innerHTML = dozenal(redSucc.cost);
+	document.getElementById("red" + numstr + "Interval").innerHTML = dozenal(redSucc.interval);
+	document.getElementById("red" + numstr + "NextIn").innerHTML = dozenal(redSucc.nextIn);
+	if ((nous > redSucc.visibleAt) || (redSucc.count > 0)) {
 		document.getElementById("red" + numstr + "Display").style.display = "block";
+	} else {
+		document.getElementById("red" + numstr + "Display").style.display = "none";
 	}
+	document.getElementById("red" + numstr + "FocusCount").innerHTML = dozenal(redFocus.count);
+	document.getElementById("red" + numstr + "FocusOddsNumerator").innerHTML = dozenal(redFocus.oddsNumerator);
+	document.getElementById("red" + numstr + "FocusOddsDenominator").innerHTML = dozenal(redFocus.oddsDenominator);
+	document.getElementById("red" + numstr + "FocusCost").innerHTML = dozenal(redFocus.cost);
 }
 
 function dozenal(dec) {
@@ -455,23 +461,44 @@ function buildButtons(player) {
 	document.getElementById('redOneButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[1], player.red.succ[0])
 	})
+	document.getElementById('redOneFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 1)
+	})
 	document.getElementById('redTwoButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[2], player.red.succ[0])
+	})
+	document.getElementById('redTwoFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 2)
 	})
 	document.getElementById('redThreeButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[3], player.red.succ[0])
 	})
+	document.getElementById('redThreeFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 3)
+	})
 	document.getElementById('redFourButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[4], player.red.succ[0])
+	})
+	document.getElementById('redFourFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 4)
 	})
 	document.getElementById('redFiveButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[5], player.red.succ[0])
 	})
+	document.getElementById('redFiveFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 5)
+	})
 	document.getElementById('redSixButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[6], player.red.succ[0])
 	})
+	document.getElementById('redSixFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 6)
+	})
 	document.getElementById('redSevenButton').addEventListener('click', function() {
 		redBuySuccessor(player.red.succ[7], player.red.succ[0])
+	})
+	document.getElementById('redSevenFocusButton').addEventListener('click', function() {
+		redBuyFocus(player.red, 7)
 	})
 }
 
